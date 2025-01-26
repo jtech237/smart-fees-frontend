@@ -5,5 +5,5 @@ export default function ThemeProvider({
 }: Readonly<{
   children: React.ReactNode;
 }>) {
-  return <NextThemeProvider attribute="class" enableSystem defaultTheme="dark">{children}</NextThemeProvider>;
+  return <NextThemeProvider attribute="class" enableColorScheme enableSystem defaultTheme="dark">{children}</NextThemeProvider>;
 }

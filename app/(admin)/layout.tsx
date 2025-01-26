@@ -1,4 +1,3 @@
-import ThemeProvider from "@/providers/ThemeProviders";
 import type { Metadata } from "next";
 
 
@@ -13,8 +12,8 @@ export default function AdminLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <ThemeProvider>
+    <>
       {children}
-    </ThemeProvider>
+    </>
   );
 }
