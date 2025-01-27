@@ -1,7 +1,7 @@
 import api from "./api";
 
 export async function fetchData<T>(endpoint: string, params?: Record<string, any>): Promise<T>{
-  const response = await api.get(endpoint, {params})
+  const response = await api.get<T>(endpoint, {params})
   return response.data
 }
 

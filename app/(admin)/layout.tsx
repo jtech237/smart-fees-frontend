@@ -18,7 +18,7 @@ export default function AdminRootLayout({
             <AdminSidebar/>
             <div className="relative flex flex-1 flex-col lg:ml-72.5 overflow-y-auto overflow-x-hidden">
               <AdminHeader/>
-              <main className="mx-auto max-w-screen-2xl p-4 md:p-6 2xl:p-10">
+              <main className="mx-auto w-full max-w-screen-2xl p-4 md:p-6 2xl:p-10">
                 {children}
               </main>
             </div>
