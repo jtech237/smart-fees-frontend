@@ -1,15 +1,15 @@
-import ClickOutside from "@/components/ClickOutside"
-import { cn } from "@/lib/utils"
-import { useSidebar } from "@/providers/SidebarProviders"
-import Image from "next/image"
-import Link from "next/link"
-import { routes } from "./routes"
-import SidebarMenuGroup from "./SidebarMenuGroup"
-import {useLocalStorage} from "usehooks-ts"
+import ClickOutside from "@/components/ClickOutside";
+import { cn } from "@/lib/utils";
+import { useSidebar } from "@/providers/SidebarProviders";
+import Image from "next/image";
+import Link from "next/link";
+import { routes } from "./routes";
+import SidebarMenuGroup from "./SidebarMenuGroup";
+import { useLocalStorage } from "usehooks-ts";
 
 const AdminSidebar = () => {
-  const {closeSidebar, isOpen} = useSidebar()
-  const [pageName, setPageName] = useLocalStorage("selected-menu", "dashboard")
+  const { closeSidebar, isOpen } = useSidebar();
+  const [pageName, setPageName] = useLocalStorage("selected-menu", "dashboard");
 
   return (
     <ClickOutside onClick={closeSidebar}>
@@ -30,7 +30,11 @@ const AdminSidebar = () => {
               height={32}
             />
           </Link>
-          <button aria-controls="sidebar" onClick={closeSidebar} className="block lg:hidden">
+          <button
+            aria-controls="sidebar"
+            onClick={closeSidebar}
+            className="block lg:hidden"
+          >
             X
           </button>
         </div>
@@ -49,7 +53,7 @@ const AdminSidebar = () => {
         </div>
       </aside>
     </ClickOutside>
-  )
-}
+  );
+};
 
-export default AdminSidebar
+export default AdminSidebar;
