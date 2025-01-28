@@ -1,3 +1,4 @@
+import { UserResponse } from "@/types/user";
 import axios from "axios";
 import { getSession, signOut } from "next-auth/react";
 
@@ -27,10 +28,10 @@ api.interceptors.response.use(
         Promise.reject(error);
       } else {
         try {
-          const res = await axios.post(`${API_URL}/auth/token/refresh`, {
+          const res = await axios.post<UserResponse>(`${API_URL}/auth/token/refresh`, {
             refresh: session.user.refreshToken,
           });
-          const newAccess = res.data.acess;
+          const newAccess = res.data.access;
           session.user.accessToken = newAccess;
           session.user.refreshToken = res.data.refresh;
         } catch (refreshError) {

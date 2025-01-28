@@ -1,83 +1,77 @@
 "use client";
 
+import DataTable from "@/components/data-table";
 import { fetchData } from "@/lib/api-crud";
 import { Classe, ClasseListResponse } from "@/types/classes";
+import { ColumnDef } from "@tanstack/react-table";
 import Link from "next/link";
 import { useEffect, useState } from "react";
 
-export default function ClasseListPage(){
-  const [loading, setLoading] = useState(true)
-  const [classes, setClasses] = useState<Classe[]>([])
+const columns: ColumnDef<Classe>[] = [
+  { accessorKey: "id", header: "#" },
+  { accessorKey: "name", header: "Nom de la classe" },
+  {
+    accessorKey: "parent.name",
+    id: "parent_name",
+    header: "Classe parente",
+    cell: ({ row }) => row.original?.parent?.name || "-/-",
+  },
+];
 
+export default function ClasseListPage() {
+  const [loading, setLoading] = useState(true);
+  const [classes, setClasses] = useState<Classe[]>([]);
+  const [error, setError] = useState<string | null>(null);
+  const [pagination, setPagination] = useState({ page: 1, limit: 10 });
 
   useEffect(() => {
-    async function loadClasses(){
+    async function loadClasses() {
       try {
-        const data = await fetchData<ClasseListResponse>("/classes")
-        const mappedClasses: Classe[] = data.data.map(classe => {
-          return {
-            id: classe.id,
-            depth: classe.depth,
-            name: classe.name,
-            parent: classe.parent
-          }
-        })
-        setClasses(mappedClasses)
-      } catch (error) {
-        console.error("Erreur lors de la récupération des classes", error)
+        setLoading(true);
+        const data = await fetchData<ClasseListResponse>("/classes", {
+          skip: (pagination.page - 1) * pagination.limit,
+          limit: pagination.limit,
+        });
 
-      }finally{
-        setLoading(false)
+        setClasses(data.data);
+      } catch (err) {
+        console.error("Erreur API :", err);
+        setError(err instanceof Error ? err.message : "Une erreur est survenue");
+      } finally {
+        setLoading(false);
       }
     }
 
-    loadClasses()
-  }, [])
+    loadClasses();
+  }, [pagination]);
 
   return (
     <div>
       <div className="mb-6 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-        <h2 className="font-semibold">
-          Liste des classes
-        </h2>
+        <h2 className="font-semibold">Liste des classes</h2>
         <nav>
           <ol className="flex items-center gap-2">
-            <li><Link href="/admin" className="font-medium">Dashboard</Link></li>
+            <li>
+              <Link href="/admin" className="font-medium">
+                Dashboard /
+              </Link>
+            </li>
             <li className="font-medium text-primary">Gestion des classes</li>
           </ol>
         </nav>
       </div>
 
       {/* Table */}
-      <table className="table-auto w-full border">
-        <thead className="bg-primary">
-          <tr>
-            <th className="py-2">#</th>
-            <th>Name</th>
-            <th>Parent</th>
-            <th>L</th>
-          </tr>
-        </thead>
-          {loading ? (
-            <tbody>
-              <tr>
-              <td colSpan={4} className="text-center">Chargement...</td>
-            </tr>
-            </tbody>
-          ) : (
-            <tbody>
-              {classes.map(classe => (
-                <tr key={`class-${classe.id}`}>
-                  <td>{classe.id}</td>
-                  <td>{classe.name}</td>
-                  <td>{classe.parent?.name}</td>
-                  <td>--</td>
-                </tr>
-              ))}
-            </tbody>
-          )}
-      </table>
+      <DataTable
+        columns={columns}
+        data={classes}
+        error={error}
+        isLoading={loading}
+        enableSorting
+        enableFilter
+        enablePagination
+        searchableColumns={["id", "name"]}
+      />
     </div>
-  )
+  );
 }
-
