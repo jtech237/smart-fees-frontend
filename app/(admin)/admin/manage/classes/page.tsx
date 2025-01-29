@@ -1,11 +1,12 @@
 "use client";
 
-import DataTable from "@/components/data-table";
-import { fetchData } from "@/lib/api-crud";
-import { Classe, ClasseListResponse } from "@/types/classes";
-import { ColumnDef } from "@tanstack/react-table";
-import Link from "next/link";
-import { useEffect, useState } from "react";
+import Link from 'next/link';
+import { useEffect, useState } from 'react';
+
+import DataTable from '@/components/data-table';
+import { fetchData } from '@/lib/api-crud';
+import { Classe, ClasseListResponse } from '@/types/classes';
+import { ColumnDef } from '@tanstack/react-table';
 
 const columns: ColumnDef<Classe>[] = [
   { accessorKey: "id", header: "#" },

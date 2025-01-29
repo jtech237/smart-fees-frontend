@@ -18,10 +18,7 @@ export interface ClasseListResponse {
   total: number
   skip: number
   limit: number
-  data: Array<Classe & {
-    created_at: string
-    updated_at: number
-  }>
+  data: Array<Classe>
 }
 
 export interface ClasseItemResponse extends Classe{
