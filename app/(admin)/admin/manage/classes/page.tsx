@@ -12,9 +12,11 @@ import { Button } from '@/components/ui/button';
 import {
     Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger
 } from '@/components/ui/dialog';
-import { fetchData } from '@/lib/api-crud';
+import { deleteItem, fetchData } from '@/lib/api-crud';
 import { Classe, ClasseListResponse } from '@/types/classes';
 import { ColumnDef } from '@tanstack/react-table';
+import { toast } from 'sonner';
+import { useTimeout } from 'usehooks-ts';
 
 const columns: ColumnDef<Classe>[] = [
   { accessorKey: "id", header: "#" },
@@ -62,7 +64,16 @@ const columns: ColumnDef<Classe>[] = [
               <AlertDialogFooter>
                 <AlertDialogCancel>Annuler</AlertDialogCancel>
                 <AlertDialogAction asChild>
-                  <Button variant="destructive">Supprimer</Button>
+                  <Button variant="destructive" onClick={async () => {
+                    try {
+                      await deleteItem("/classes", classe.id)
+                      toast.success("Classe supprimée !")
+                      window.location.reload()
+                    } catch (error) {
+                      console.error("Erreur", error)
+                      toast.error("Erreur lors de la suppression !")
+                    }
+                  }}>Supprimer</Button>
                 </AlertDialogAction>
               </AlertDialogFooter>
             </AlertDialogContent>
@@ -99,6 +110,7 @@ export default function ClasseListPage() {
 
     loadClasses();
   }, [pagination]);
+
 
   return (
     <div>

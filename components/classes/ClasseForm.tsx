@@ -20,9 +20,10 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { fetchData } from "@/lib/api-crud";
+import { createItem, fetchData, updateItem } from "@/lib/api-crud";
 import { Classe, ClasseListResponse } from "@/types/classes";
 import { zodResolver } from "@hookform/resolvers/zod";
+import { toast } from "sonner";
 
 const classeSchema = z.object({
   name: z.string().min(2, "Le nom est trop court"),
@@ -61,8 +62,23 @@ export default function ClasseForm({ initialData, onSuccess }: Props) {
     loadParents();
   }, [initialData]);
 
-  const onSubmit: SubmitHandler<z.infer<typeof classeSchema>> = (data) => {
-    console.log(data);
+  const onSubmit: SubmitHandler<z.infer<typeof classeSchema>> = async (data) => {
+    setLoading(true)
+    try {
+      if(initialData){
+        await updateItem<Classe>("/classes", initialData.id, data)
+        toast.success("Classe mise a jour!")
+      }else{
+        await createItem<Classe>("/classes", data)
+        toast.success("Classe créée !");
+      }
+      onSuccess()
+    } catch (error) {
+      console.error(error)
+      toast.error("Erreur l'or de l'enregistrement.")
+    }finally{
+      setLoading(false)
+    }
   };
 
   return (

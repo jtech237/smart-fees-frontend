@@ -1,6 +1,7 @@
 "use client"
 import AdminHeader from "@/components/header/admin";
 import AdminSidebar from "@/components/sidebars/admin";
+import { Toaster } from "@/components/ui/sonner";
 import { SidebarProvider } from "@/providers/SidebarProviders";
 
 
@@ -13,6 +14,7 @@ export default function AdminRootLayout({
     <>
     <title>Admin</title>
       <SidebarProvider>
+        <Toaster  position="top-center" richColors/>
         <div className="h-screen">
           <div className="flex">
             <AdminSidebar/>
