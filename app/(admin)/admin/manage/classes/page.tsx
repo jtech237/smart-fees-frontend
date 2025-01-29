@@ -1,9 +1,17 @@
 "use client";
 
-import Link from 'next/link';
 import { useEffect, useState } from 'react';
 
+import ClasseForm from '@/components/classes/ClasseForm';
 import DataTable from '@/components/data-table';
+import {
+    AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription,
+    AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger
+} from '@/components/ui/alert-dialog';
+import { Button } from '@/components/ui/button';
+import {
+    Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger
+} from '@/components/ui/dialog';
 import { fetchData } from '@/lib/api-crud';
 import { Classe, ClasseListResponse } from '@/types/classes';
 import { ColumnDef } from '@tanstack/react-table';
@@ -16,6 +24,52 @@ const columns: ColumnDef<Classe>[] = [
     id: "parent_name",
     header: "Classe parente",
     cell: ({ row }) => row.original?.parent?.name || "-/-",
+  },
+  {
+    id: "actions",
+    header: "Actions",
+    cell: ({row}) => {
+      const classe = {
+        name: row.original.name,
+        id: row.original.id,
+        parent: row.original.parent?.id
+      }
+      return (
+        <div className="flex space-x-2">
+          <Dialog>
+            <DialogTrigger asChild>
+              <Button variant="outline">Modifier</Button>
+            </DialogTrigger>
+            <DialogContent>
+              <DialogHeader>
+                <DialogTitle>Modifier {classe.name}</DialogTitle>
+              </DialogHeader>
+              <ClasseForm initialData={classe} onSuccess={() => window.location.reload()}/>
+            </DialogContent>
+          </Dialog>
+          <AlertDialog>
+            <AlertDialogTrigger asChild>
+              <Button variant="destructive">Supprimer</Button>
+            </AlertDialogTrigger>
+            <AlertDialogContent>
+              <AlertDialogHeader>
+                <AlertDialogTitle>Voulez-vous vraiment supprimer cette classe ?</AlertDialogTitle>
+                <AlertDialogDescription>
+                  Supprimer cette classe entrainera la suppression des classes enfantes et toute autre relation avec cette classe.
+                  Cette action est ireversible!
+                </AlertDialogDescription>
+              </AlertDialogHeader>
+              <AlertDialogFooter>
+                <AlertDialogCancel>Annuler</AlertDialogCancel>
+                <AlertDialogAction asChild>
+                  <Button variant="destructive">Supprimer</Button>
+                </AlertDialogAction>
+              </AlertDialogFooter>
+            </AlertDialogContent>
+          </AlertDialog>
+        </div>
+      )
+    }
   },
 ];
 
@@ -50,16 +104,17 @@ export default function ClasseListPage() {
     <div>
       <div className="mb-6 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
         <h2 className="font-semibold">Liste des classes</h2>
-        <nav>
-          <ol className="flex items-center gap-2">
-            <li>
-              <Link href="/admin" className="font-medium">
-                Dashboard /
-              </Link>
-            </li>
-            <li className="font-medium text-primary">Gestion des classes</li>
-          </ol>
-        </nav>
+        <Dialog>
+          <DialogTrigger asChild>
+            <Button>Ajouter une classe</Button>
+          </DialogTrigger>
+          <DialogContent>
+            <DialogHeader>
+              <DialogTitle>Creer une nouvelle classe</DialogTitle>
+            </DialogHeader>
+            <ClasseForm onSuccess={() => window.location.reload()}/>
+          </DialogContent>
+        </Dialog>
       </div>
 
       {/* Table */}
