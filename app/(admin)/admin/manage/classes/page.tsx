@@ -16,7 +16,6 @@ import { deleteItem, fetchData } from '@/lib/api-crud';
 import { Classe, ClasseListResponse } from '@/types/classes';
 import { ColumnDef } from '@tanstack/react-table';
 import { toast } from 'sonner';
-import { useTimeout } from 'usehooks-ts';
 
 const columns: ColumnDef<Classe>[] = [
   { accessorKey: "id", header: "#" },
@@ -88,7 +87,7 @@ export default function ClasseListPage() {
   const [loading, setLoading] = useState(true);
   const [classes, setClasses] = useState<Classe[]>([]);
   const [error, setError] = useState<string | null>(null);
-  const [pagination, setPagination] = useState({ page: 1, limit: 10 });
+  const [pagination] = useState({ page: 1, limit: 10 });
 
   useEffect(() => {
     async function loadClasses() {

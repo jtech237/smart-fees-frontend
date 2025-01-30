@@ -1,24 +1,20 @@
 "use client";
 
-import Link from "next/link";
-import { Input } from "@/components/ui/input";
-import React, { useEffect, useState } from "react";
-import { Button } from "@/components/ui/button";
-import { z } from "zod";
-import { SubmitHandler, useForm } from "react-hook-form";
-import { zodResolver } from "@hookform/resolvers/zod";
+import { signIn, useSession } from 'next-auth/react';
+import Link from 'next/link';
+import { useRouter, useSearchParams } from 'next/navigation';
+import React, { useEffect, useState } from 'react';
+import { SubmitHandler, useForm } from 'react-hook-form';
+import { toast } from 'sonner';
+import { z } from 'zod';
+
+import { Button } from '@/components/ui/button';
 import {
-  Form,
-  FormControl,
-  FormField,
-  FormItem,
-  FormLabel,
-  FormMessage,
-} from "@/components/ui/form";
-import { cn } from "@/lib/utils";
-import { useRouter, useSearchParams } from "next/navigation";
-import { signIn, useSession } from "next-auth/react";
-import { toast } from "sonner";
+    Form, FormControl, FormField, FormItem, FormLabel, FormMessage
+} from '@/components/ui/form';
+import { Input } from '@/components/ui/input';
+import { cn } from '@/lib/utils';
+import { zodResolver } from '@hookform/resolvers/zod';
 
 const signupSchema = z.object({
   username: z
@@ -41,6 +37,7 @@ const LoginPage = () => {
     resolver: zodResolver(signupSchema),
     defaultValues: {
       username: "",
+      password: ""
     },
     criteriaMode: "all",
   });

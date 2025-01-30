@@ -1,9 +1,8 @@
 "use client"
-import AdminHeader from "@/components/header/admin";
-import AdminSidebar from "@/components/sidebars/admin";
-import { Toaster } from "@/components/ui/sonner";
-import { SidebarProvider } from "@/providers/SidebarProviders";
-
+import AdminHeader from '@/components/header/admin';
+import AdminSidebar from '@/components/sidebars/admin';
+import { Toaster } from '@/components/ui/sonner';
+import { SidebarProvider } from '@/providers/SidebarProviders';
 
 export default function AdminRootLayout({
   children,

@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg id="Calque_2" data-name="Calque 2" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 829 446.65">
+  <defs>
+    <style>
+      .cls-1 {
+        fill: #3aaa35;
+        font-family: SourceSerifVariable-Roman, 'Source Serif Variable';
+        font-size: 208.56px;
+        font-variation-settings: 'wght' 389;
+      }
+
+      .cls-2 {
+        fill: #1d71b8;
+        font-family: CooperBlack, 'Cooper Black';
+        font-size: 260px;
+      }
+
+      .cls-3 {
+        letter-spacing: -.04em;
+      }
+
+      .cls-4 {
+        letter-spacing: 0em;
+      }
+
+      .cls-5 {
+        letter-spacing: .01em;
+      }
+    </style>
+  </defs>
+  <g id="Calque_1-2" data-name="Calque 1">
+    <text class="cls-2" transform="translate(0 218.04)"><tspan x="0" y="0">Sma</tspan><tspan class="cls-5" x="565.83" y="0">r</tspan><tspan x="708.65" y="0">t</tspan></text>
+    <text class="cls-1" transform="translate(210.9 376.78) scale(.98 1)"><tspan class="cls-3" x="0" y="0">F</tspan><tspan class="cls-4" x="112.41" y="0">ees</tspan></text>
+  </g>
+</svg>

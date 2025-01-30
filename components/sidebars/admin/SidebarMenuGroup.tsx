@@ -1,6 +1,7 @@
-import React from "react";
-import { RouteGroup } from "./routes";
-import SidebarItem from "./SidebarItem";
+import React from 'react';
+
+import { RouteGroup } from './routes';
+import SidebarItem from './SidebarItem';
 
 interface Props {
   name: string;

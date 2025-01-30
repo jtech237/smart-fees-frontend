@@ -1,0 +1,67 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg id="Calque_2" data-name="Calque 2" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1148.81 446.65">
+  <defs>
+    <style>
+      .cls-1 {
+        fill: #3aaa35;
+        font-family: SourceSerifVariable-Roman, 'Source Serif Variable';
+        font-size: 208.56px;
+        font-variation-settings: 'wght' 389;
+      }
+
+      .cls-2 {
+        fill: #1d71b8;
+        font-family: CooperBlack, 'Cooper Black';
+        font-size: 260px;
+      }
+
+      .cls-3 {
+        fill: #ffed00;
+        stroke-linecap: round;
+        stroke-width: 14px;
+      }
+
+      .cls-3, .cls-4, .cls-5 {
+        stroke: #1d1d1b;
+        stroke-miterlimit: 10;
+      }
+
+      .cls-6 {
+        letter-spacing: -.04em;
+      }
+
+      .cls-7 {
+        letter-spacing: 0em;
+      }
+
+      .cls-8 {
+        letter-spacing: .01em;
+      }
+
+      .cls-4 {
+        fill: none;
+      }
+
+      .cls-4, .cls-5 {
+        stroke-width: 10px;
+      }
+
+      .cls-5 {
+        fill: #1d1d1b;
+        font-family: MyriadPro-Regular, 'Myriad Pro';
+        font-size: 173.32px;
+      }
+    </style>
+  </defs>
+  <g id="Calque_1-2" data-name="Calque 1">
+    <g>
+      <text class="cls-2" transform="translate(319.8 218.04)"><tspan x="0" y="0">Sma</tspan><tspan class="cls-8" x="565.83" y="0">r</tspan><tspan x="708.65" y="0">t</tspan></text>
+      <text class="cls-1" transform="translate(530.7 376.78) scale(.98 1)"><tspan class="cls-6" x="0" y="0">F</tspan><tspan class="cls-7" x="112.41" y="0">ees</tspan></text>
+      <g>
+        <path class="cls-3" d="m48.59,335.78c-25.77-27.12-41.59-63.78-41.59-104.15,0-83.51,67.69-151.2,151.2-151.2s151.2,67.69,151.2,151.2-67.69,151.2-151.2,151.2c-28.73,0-55.58-8.01-78.46-21.92"/>
+        <circle class="cls-4" cx="158.2" cy="231.64" r="126.19"/>
+        <text class="cls-5" transform="translate(113.75 282.51)"><tspan x="0" y="0">$</tspan></text>
+      </g>
+    </g>
+  </g>
+</svg>

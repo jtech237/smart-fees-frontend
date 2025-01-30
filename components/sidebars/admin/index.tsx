@@ -23,7 +23,7 @@ const AdminSidebar = () => {
         <div className="text-white flex items-center justify-between gap-2 px-6 py-5.5 lg:py-6.5">
           <Link href="/admin">
             <Image
-              src={"/vector/default/monochome-white.svg"}
+              src={"/assets/images/logos/full.webp"}
               alt="Logo"
               priority
               width={176}
@@ -41,7 +41,7 @@ const AdminSidebar = () => {
         {/* <!-- SIDEBAR HEADER --> */}
 
         <div className="mt-5 px-4 py-4 lg:mt-9 lg:px-6">
-          {Object.keys(routes).map((group, index) => (
+          {(Object.keys(routes) as (keyof typeof routes)[]).map((group, index) => (
             <SidebarMenuGroup
               key={index}
               name={group}

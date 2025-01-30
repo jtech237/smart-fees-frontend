@@ -1,10 +1,12 @@
 "use client";
 
-import { ThemeSwitch } from "@/components/theme-swith";
-import { useSidebar } from "@/providers/SidebarProviders";
-import { Turn as Hamburger } from "hamburger-react";
-import { Search } from "lucide-react";
-import Link from "next/link";
+import { Turn as Hamburger } from 'hamburger-react';
+import { Search } from 'lucide-react';
+import Image from 'next/image';
+import Link from 'next/link';
+
+import { ThemeSwitch } from '@/components/theme-swith';
+import { useSidebar } from '@/providers/SidebarProviders';
 
 const AdminHeader: React.FC = () => {
   const { isOpen, toggleSidebar } = useSidebar();
@@ -20,7 +22,14 @@ const AdminHeader: React.FC = () => {
           >
             <Hamburger toggled={isOpen} />
           </button>
-          <Link href="/admin">SMART-FEES</Link>
+          <Link href="/admin">
+            <Image
+              src={"/assets/images/logos/icon.webp"}
+              alt="Logo"
+              width={32}
+              height={32}
+            />
+          </Link>
         </div>
         <div className="hidden sm:block">
           <form action="https://formbold.com/s/unique_form_id" method="POST">

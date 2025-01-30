@@ -1,4 +1,4 @@
-import {LayoutDashboard, School} from "lucide-react"
+import { LayoutDashboard, School } from 'lucide-react';
 
 export type Routes = typeof routes
 export type RouteItem = typeof routes.menu[number] & {

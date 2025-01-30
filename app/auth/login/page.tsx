@@ -1,5 +1,6 @@
-import {LoginPage} from "@/components/pages/auth/login";
-import { Toaster } from "@/components/ui/sonner";
+import { LoginPage } from '@/components/pages/auth/login';
+import { Toaster } from '@/components/ui/sonner';
+
 import type { Metadata } from "next";
 
 

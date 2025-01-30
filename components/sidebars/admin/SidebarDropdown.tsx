@@ -1,7 +1,9 @@
-import { usePathname } from "next/navigation";
-import { SubRouteItem } from "./routes";
-import Link from "next/link";
-import { cn } from "@/lib/utils";
+import Link from 'next/link';
+import { usePathname } from 'next/navigation';
+
+import { cn } from '@/lib/utils';
+
+import { SubRouteItem } from './routes';
 
 interface Props{
   items: SubRouteItem[]

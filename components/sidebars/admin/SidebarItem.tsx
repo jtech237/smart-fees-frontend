@@ -1,8 +1,10 @@
-import { usePathname } from "next/navigation";
-import { RouteItem, SubRouteItem } from "./routes";
-import Link from "next/link";
-import { cn } from "@/lib/utils";
-import SidebarDropdown from "./SidebarDropdown";
+import Link from 'next/link';
+import { usePathname } from 'next/navigation';
+
+import { cn } from '@/lib/utils';
+
+import { RouteItem, SubRouteItem } from './routes';
+import SidebarDropdown from './SidebarDropdown';
 
 interface Props {
   item: RouteItem;
