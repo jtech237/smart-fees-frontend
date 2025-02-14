@@ -9,7 +9,7 @@ import { Input } from "@/components/ui/input"
 import { zodResolver } from "@hookform/resolvers/zod"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { Button } from "@/components/ui/button"
-import { createItem, fetchData, updateItem } from "@/lib/api-crud"
+import { createItem, fetchData, updateItem } from "@/lib/api/api-crud"
 import { toast } from "sonner"
 import { Classroom } from "@/types/classrooms"
 

@@ -15,9 +15,15 @@ export const routes = {
       icon: <LayoutDashboard/>
     },
     {
-      label: "Gestion des classes",
-      route: "/admin/manage/classes",
-      icon: <School/>
+      label: "Etablissement",
+      route: "#",
+      icon: <School/>,
+      children: [
+        {
+          label: "Gestion des classes",
+          route: "/admin/manage/classes"
+        }
+      ]
     }
   ]
 }

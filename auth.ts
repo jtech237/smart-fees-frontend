@@ -2,6 +2,7 @@ import NextAuth, { CredentialsSignin } from "next-auth";
 import CredentialsProvider from "next-auth/providers/credentials";
 import axios from "axios";
 import { z } from "zod";
+import { jwtDecode } from "jwt-decode";
 
 import type { NextAuthConfig, User } from "next-auth";
 import type { UserType, UserResponse } from "@/types/user";
@@ -11,20 +12,27 @@ const AUTH_URL = `${
   process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000/api"
 }/auth/token`;
 
-class UnauthorizedError extends CredentialsSignin{
-  code = 'unauthorized';
-  message = "Authentication failed! Incorrect Username or Password. Check your credentials";
+class UnauthorizedError extends CredentialsSignin {
+  code = "unauthorized";
+  message =
+    "Authentication failed! Incorrect Username or Password. Check your credentials";
   status = 401;
 }
 
-class InvalidCredentials extends CredentialsSignin{
-  code = 'invalid_credentials'
-  status = 400
+class InvalidCredentials extends CredentialsSignin {
+  code = "invalid_credentials";
+  status = 400;
 }
 
-class UnexpectedError extends CredentialsSignin{
-  code: string = "unexepted"
-  message: string = "Internal server error. Contact administrator"
+class UnexpectedError extends CredentialsSignin {
+  code: string = "unexepted";
+  message: string = "Internal server error. Contact administrator";
+}
+
+class RefreshTokenError extends CredentialsSignin {
+  code = "refresh_failed";
+  message = "Session expired. Please log in again.";
+  status = 401;
 }
 
 async function fetchUser(from: string | URL, body: Credentials) {
@@ -32,23 +40,22 @@ async function fetchUser(from: string | URL, body: Credentials) {
     const url = typeof from === "string" ? from : from.toString();
     const res = await axios.post<UserResponse>(url, body);
 
-    console.info(res);
     if (res.status === 200) {
       return res.data;
     }
-    return null
+    return null;
   } catch (error) {
-    if(axios.isAxiosError(error)){
+    if (axios.isAxiosError(error)) {
       const status = error.response?.status;
-      if(status === 401){
-        throw new UnauthorizedError()
+      if (status === 401) {
+        throw new UnauthorizedError();
       }
-      if(status === 404){
-        throw new UnexpectedError("Auth URL unavailable", {cause: error})
+      if (status === 404) {
+        throw new UnexpectedError("Auth URL unavailable", { cause: error });
       }
-      console.log("New ===> ", error)
+      console.log("New ===> ", error);
     }
-    throw new UnexpectedError({cause: error})
+    throw new UnexpectedError({ cause: error });
   }
 }
 
@@ -93,10 +100,10 @@ const authOptions = {
           return user as User | null;
         } catch (error) {
           if (error instanceof z.ZodError) {
-            throw new InvalidCredentials(error)
+            throw new InvalidCredentials(error);
           }
 
-          throw error
+          throw error;
         }
       },
     }),
@@ -116,6 +123,30 @@ const authOptions = {
         token.name = user.name;
         token.username = user.username;
         token.id = user.id as unknown as number;
+
+        return token;
+      }
+
+      try {
+
+        const decoded = jwtDecode(token.accessToken);
+        const buffer = 5 * 60 * 1000; // 5 minutes de buffer
+
+        if (decoded.exp && decoded.exp * 1000 > Date.now() - buffer) {
+          console.log("IS HERE")
+          return token;
+        }
+        const response = await axios.post(`${AUTH_URL}/refresh`, {
+          refresh: token.refreshToken,
+        });
+        token.accessToken = response.data.access;
+        token.refreshToken = response.data.refresh;
+        return token;
+      } catch (error) {
+        if (axios.isAxiosError(error) && error.response?.status === 401) {
+          throw new RefreshTokenError();
+        }
+        return null;
       }
 
       return token;

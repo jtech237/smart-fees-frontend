@@ -1,4 +1,4 @@
-import api from "./api";
+import api from "./";
 
 export async function fetchData<T>(endpoint: string, params?: Record<string, any>): Promise<T>{
   const response = await api.get<T>(endpoint, {params})
