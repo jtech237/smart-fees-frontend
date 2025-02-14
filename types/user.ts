@@ -6,6 +6,7 @@ interface UserType{
   accessToken: string
   refreshToken: string
   role: string
+  expire_in: number
 }
 
 interface UserResponse{
@@ -16,6 +17,7 @@ interface UserResponse{
   name: string,
   access: string,
   refresh: string
+  expires: number
 }
 
 export type { UserType, UserResponse }

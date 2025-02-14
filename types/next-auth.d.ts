@@ -16,5 +16,7 @@ declare module "next-auth/adapters" {
 }
 
 declare module "next-auth/jwt" {
-  interface JWT extends UserType {}
+  interface JWT extends UserType {
+    expires: number
+  }
 }

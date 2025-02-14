@@ -2,7 +2,6 @@ import NextAuth, { CredentialsSignin } from "next-auth";
 import CredentialsProvider from "next-auth/providers/credentials";
 import axios from "axios";
 import { z } from "zod";
-import { jwtDecode } from "jwt-decode";
 
 import type { NextAuthConfig, User } from "next-auth";
 import type { UserType, UserResponse } from "@/types/user";
@@ -68,6 +67,7 @@ function createUser(user: UserResponse) {
     role: user.role,
     accessToken: user.access,
     refreshToken: user.refresh,
+    expire_in: user.expires
   };
 
   return objectUser;
@@ -119,6 +119,7 @@ const authOptions = {
       if (user) {
         token.accessToken = user.accessToken;
         token.refreshToken = user.refreshToken;
+        token.expires = user.expire_in
         token.role = user.role;
         token.name = user.name;
         token.username = user.username;
@@ -129,11 +130,9 @@ const authOptions = {
 
       try {
 
-        const decoded = jwtDecode(token.accessToken);
-        const buffer = 5 * 60 * 1000; // 5 minutes de buffer
+        const buffer =  5 * 60 * 1000; // 5 minutes de buffer
 
-        if (decoded.exp && decoded.exp * 1000 > Date.now() - buffer) {
-          console.log("IS HERE")
+        if (Date.now() < (token.expires - buffer)) {
           return token;
         }
         const response = await axios.post(`${AUTH_URL}/refresh`, {
@@ -141,6 +140,7 @@ const authOptions = {
         });
         token.accessToken = response.data.access;
         token.refreshToken = response.data.refresh;
+        token.expires = response.data.expires
         return token;
       } catch (error) {
         if (axios.isAxiosError(error) && error.response?.status === 401) {
