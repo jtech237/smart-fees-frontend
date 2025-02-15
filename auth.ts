@@ -140,7 +140,7 @@ const authOptions = {
         });
         token.accessToken = response.data.access;
         token.refreshToken = response.data.refresh;
-        token.expires = response.data.expires
+        token.expires = response.data.expires * 1000
         return token;
       } catch (error) {
         if (axios.isAxiosError(error) && error.response?.status === 401) {

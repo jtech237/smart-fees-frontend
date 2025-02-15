@@ -22,6 +22,10 @@ export const routes = {
         {
           label: "Gestion des classes",
           route: "/admin/manage/classes"
+        },
+        {
+          label: "Salles de classes",
+          route: "/admin/manage/classrooms"
         }
       ]
     }

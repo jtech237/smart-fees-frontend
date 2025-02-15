@@ -1,7 +1,5 @@
 "use client"
 
-import { Classe, ClasseListResponse } from "@/types/classes"
-import { useEffect, useState } from "react"
 import { SubmitHandler, useForm } from "react-hook-form"
 import { z } from "zod"
 import { Form, FormControl, FormField, FormItem, FormLabel } from "@/components/ui/form"
@@ -9,9 +7,9 @@ import { Input } from "@/components/ui/input"
 import { zodResolver } from "@hookform/resolvers/zod"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { Button } from "@/components/ui/button"
-import { createItem, fetchData, updateItem } from "@/lib/api/api-crud"
 import { toast } from "sonner"
-import { Classroom } from "@/types/classrooms"
+import { useCreateClassroom, useUpdateClassroom } from "@/lib/api/classrooms"
+import { useClasses } from "@/lib/api/classes"
 
 const classroomSchema = z.object({
   name: z.string().min(3, "Le nom est trop court."),
@@ -20,16 +18,13 @@ const classroomSchema = z.object({
 
 type ClassroomDataType = z.infer<typeof classroomSchema>
 type Props = {
-  initialData?: ClassroomDataType & {id: number}
-  onSuccess: () => void
+  initialData?: {id: number; name: string; classe: number}
+  onSuccess?: () => void
 }
 
 export default function ClassroomForm({
   initialData, onSuccess
 }: Props){
-  const [loading, setLoading] = useState(false)
-  const [classes, setClasses] = useState<Pick<Classe, "id" | "name">[]>([])
-
   const form = useForm({
     resolver: zodResolver(classroomSchema),
     defaultValues: initialData ? initialData : {
@@ -37,48 +32,43 @@ export default function ClassroomForm({
     }
   })
 
-  useEffect(() => {
-    async function loadClasses() {
-      try {
-        const res = await fetchData<ClasseListResponse>("/classes", { limit: 100 });
-        setClasses(res.data.map(c => ({ id: c.id, name: c.name })));
-      } catch (error) {
-        console.error("Erreur lors du chargement des classes :", error);
-        toast.error("Impossible de charger les classes");
-      }
-    }
-    loadClasses();
-  }, []);
+  const createClassroom = useCreateClassroom()
+  const updateClassroom = useUpdateClassroom()
+  const {data: classes} = useClasses()
+
+  const isPending = createClassroom.isPending || updateClassroom.isPending
+
 
   const onSubmit: SubmitHandler<ClassroomDataType> = async (data) => {
-    setLoading(true)
-    try {
-      if(initialData){
-        const patchData: Record<string, string | number> = {}
-        if(initialData.name !== data.name){
-          patchData.name = data.name
-        }
-        if(initialData.classe !== data.classe){
-          patchData.classe = data.classe
-        }
-        if(Object.keys(patchData).length === 0){
-          toast.info("Aucune modification détectée");
-          setLoading(false);
-          return;
-        }
-        await updateItem<Classroom>("/classes", initialData.id, patchData)
-        toast.success("Salle mise a jour")
-      }else{
-        await createItem<Classroom, ClassroomDataType>("/classrooms", data)
-        toast.success("Salle cree !")
-      }
-      onSuccess()
-    } catch (error) {
-      console.error("Erreur lors de l'enregistrement.", error)
-      toast.error("Erreur lors de l'enregistrement.")
-    }finally{
-      setLoading(false)
+    if(initialData){
+      updateClassroom.mutate(
+        {id: initialData.id, data},
+        {
+          onSuccess: () => {
+            toast.success("Salle mise a jour.")
+            form.reset()
+            onSuccess?.()
+          },
+          onError: (err) => {
+            console.error(err)
+            toast.error("Erreur lors de la modification.")
+          },
+        },
+      )
+    }else{
+      createClassroom.mutate(data, {
+        onSuccess: () => {
+          toast.success("Salle cree")
+          form.reset()
+          onSuccess?.()
+        },
+        onError: (err) => {
+          console.error(err)
+          toast.error("Erreur lors de la creation.")
+        },
+      })
     }
+
   }
 
   return (
@@ -122,7 +112,7 @@ export default function ClassroomForm({
                   </SelectTrigger>
                 </FormControl>
                 <SelectContent>
-                  {classes.map((classe) => (
+                  {(classes || []).map((classe) => (
                     <SelectItem value={`${classe.id}`} key={classe.id}>
                       {classe.name}
                     </SelectItem>
@@ -139,7 +129,7 @@ export default function ClassroomForm({
               !form.formState.isDirty || !form.formState.isValid || form.formState.isSubmitting
             }
           >
-            {loading ? "Enregistrement..." : initialData ? "Modifier" : "Créer"}
+            {isPending ? "Enregistrement..." : initialData ? "Modifier" : "Créer"}
           </Button>
         </div>
       </form>
