@@ -1,5 +1,7 @@
 import { UserResponse } from "@/types/user";
 import axios from "axios";
+import camelcaseKeys from "camelcase-keys";
+import camelCaseKeys from "camelcase-keys";
 import { getSession, signOut } from "next-auth/react";
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000/api";
@@ -18,7 +20,12 @@ api.interceptors.request.use(async (config) => {
 });
 
 api.interceptors.response.use(
-  (response) => response,
+  (response) => {
+    if (response.data) {
+      response.data = camelcaseKeys(response.data, { deep: true });
+    }
+    return response;
+  },
   async (error) => {
     const original = error.config;
     if (error.response?.status === 401 && !original._retry) {
@@ -43,5 +50,12 @@ api.interceptors.response.use(
     return Promise.reject(error);
   }
 );
+
+api.interceptors.response.use((response) => {
+  if(response.data){
+    response.data = camelCaseKeys(response.data, {deep: true})
+  }
+  return response
+})
 
 export default api

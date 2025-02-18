@@ -4,3 +4,23 @@ import { twMerge } from "tailwind-merge"
 export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs))
 }
+
+export function getCurrentAcademicYear() {
+  const today = new Date()
+  const month = today.getMonth() + 1
+  const year = today.getFullYear()
+  if (month >= 9) {
+    return `${year}-${year + 1}`
+  }else {
+    return `${year - 1}-${year}`
+  }
+}
+
+export function generateAcademicYears(count: number = 5): string[] {
+  const currentYear = new Date().getFullYear();
+  const years: string[] = [];
+  for (let i = 0; i < count; i++) {
+    years.push(`${currentYear - i - 1}-${currentYear - i}`);
+  }
+  return years;
+}
