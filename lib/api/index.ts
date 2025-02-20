@@ -1,10 +1,17 @@
 import { UserResponse } from "@/types/user";
 import axios from "axios";
 import camelcaseKeys from "camelcase-keys";
-import camelCaseKeys from "camelcase-keys";
 import { getSession, signOut } from "next-auth/react";
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000/api";
+let cachedSession: Awaited<ReturnType<typeof getSession>> = null;
+
+async function getCachedSession(){
+  if(!cachedSession){
+    cachedSession = await getSession()
+  }
+  return cachedSession
+}
 
 const api = axios.create({
   baseURL: API_URL,
@@ -12,7 +19,7 @@ const api = axios.create({
 });
 
 api.interceptors.request.use(async (config) => {
-  const session = await getSession();
+  const session = await getCachedSession();
   if (session?.user) {
     config.headers.Authorization = `Bearer ${session.user.accessToken}`;
   }
@@ -30,8 +37,8 @@ api.interceptors.response.use(
     const original = error.config;
     if (error.response?.status === 401 && !original._retry) {
       original._retry = true;
-      const session = await getSession();
-      if (!session) {
+      const session = await getCachedSession();
+      if (!session?.user) {
         Promise.reject(error);
       } else {
         try {
@@ -51,11 +58,5 @@ api.interceptors.response.use(
   }
 );
 
-api.interceptors.response.use((response) => {
-  if(response.data){
-    response.data = camelCaseKeys(response.data, {deep: true})
-  }
-  return response
-})
 
 export default api

@@ -1,7 +1,7 @@
 "use client";
 
-import { useEffect, useState } from "react";
 import { SubmitHandler, useForm } from "react-hook-form";
+import { toast } from "sonner";
 import { z } from "zod";
 
 import { Button } from "@/components/ui/button";
@@ -20,10 +20,12 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { createItem, fetchData, updateItem } from "@/lib/api-crud";
-import { Classe, ClasseListResponse } from "@/types/classes";
+import {
+  useClasses,
+  useCreateClasse,
+  useUpdateClasse,
+} from "@/lib/api/classes";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { toast } from "sonner";
 
 const classeSchema = z.object({
   name: z.string().min(2, "Le nom est trop court"),
@@ -32,52 +34,55 @@ const classeSchema = z.object({
 
 type Props = {
   initialData?: { id: number; name: string; parent?: number | null };
-  onSuccess: () => void;
+  onSuccess?: () => void;
 };
 
 export default function ClasseForm({ initialData, onSuccess }: Props) {
-  const [loading, setLoading] = useState(false);
-  const [parents, setParents] = useState<Classe[]>([]);
-
   const form = useForm<z.infer<typeof classeSchema>>({
     resolver: zodResolver(classeSchema),
     defaultValues: initialData ? initialData : { name: "", parent: null },
   });
   const { formState } = form;
+  const createClasse = useCreateClasse();
+  const updateClasse = useUpdateClasse();
 
-  useEffect(() => {
-    async function loadParents() {
-      const res = await fetchData<ClasseListResponse>("/classes", {
-        limit: 100,
+  const { data: parentsData } = useClasses();
+  const parents =
+    parentsData?.filter(
+      (p) => !initialData || (p.id !== initialData.id && p.depth <= 3)
+    ) || [];
+  const isPending = createClasse.isPending || updateClasse.isPending;
+
+  const onSubmit: SubmitHandler<z.infer<typeof classeSchema>> = async (
+    data
+  ) => {
+    if (initialData) {
+      updateClasse.mutate(
+        { id: initialData.id, data },
+        {
+          onSuccess: () => {
+            toast.success("Classe mise a jour");
+            form.reset();
+            onSuccess?.();
+          },
+          onError: (err) => {
+            console.error(err);
+            toast.error("Erreur lors de la modification");
+          },
+        }
+      );
+    } else {
+      createClasse.mutate(data, {
+        onSuccess: () => {
+          toast.success("Classe créée !");
+          form.reset();
+          onSuccess?.();
+        },
+        onError: (err) => {
+          console.error(err);
+          toast.error("Erreur lors de la creation");
+        },
       });
-      if (initialData) {
-        const newParents = res.data.filter(
-          (p) => p.id !== initialData.id && p.depth <= 3
-        );
-        setParents(newParents);
-      } else {
-        setParents(res.data);
-      }
-    }
-    loadParents();
-  }, [initialData]);
-
-  const onSubmit: SubmitHandler<z.infer<typeof classeSchema>> = async (data) => {
-    setLoading(true)
-    try {
-      if(initialData){
-        await updateItem<Classe>("/classes", initialData.id, data)
-        toast.success("Classe mise a jour!")
-      }else{
-        await createItem<Classe>("/classes", data)
-        toast.success("Classe créée !");
-      }
-      onSuccess()
-    } catch (error) {
-      console.error(error)
-      toast.error("Erreur l'or de l'enregistrement.")
-    }finally{
-      setLoading(false)
     }
   };
 
@@ -140,7 +145,7 @@ export default function ClasseForm({ initialData, onSuccess }: Props) {
                   </SelectContent>
                 </Select>
               </FormItem>
-            )
+            );
           }}
         />
         <div className="mt-4">
@@ -150,7 +155,11 @@ export default function ClasseForm({ initialData, onSuccess }: Props) {
               !formState.isDirty || !formState.isValid || formState.isSubmitting
             }
           >
-            {loading ? "Enregistrement..." : initialData ? "Modifier" : "Créer"}
+            {isPending
+              ? "Enregistrement..."
+              : initialData
+              ? "Modifier"
+              : "Créer"}
           </Button>
         </div>
       </form>

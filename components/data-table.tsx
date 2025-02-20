@@ -27,6 +27,10 @@ interface DataTableProps<TData, TValue> {
   enablePagination?: boolean;
   searchableColumns?: (keyof TData)[];
   enableFilter?: boolean;
+
+  serverSide?: boolean
+  totalCount?: number
+  onPageChange?: (pageIndex: number, pageSize: number) => void
 }
 
 const DataTable = <TData extends object, TValue>({
@@ -41,29 +45,47 @@ const DataTable = <TData extends object, TValue>({
   enablePagination = false,
   searchableColumns,
   enableFilter = false,
+  serverSide = false,
+  totalCount,
+  onPageChange,
 }: DataTableProps<TData, TValue>) => {
   const [searchQuery, setSearchQuery] = useState("");
   const [pagination, setPagination] = useState({ pageIndex: 0, pageSize: 10 });
+
   const [debounceSearchQuery] = useDebounceValue(searchQuery, 3000)
 
   const filteredData = useMemo(() => {
-    if (!enableFilter || !debounceSearchQuery.trim()) return data;
-
-    return data.filter((row) =>
-      searchableColumns?.some((key) =>
-        String(row[key])?.toLowerCase().includes(searchQuery.toLowerCase())
-      )
-    );
-  }, [enableFilter, debounceSearchQuery, data, searchableColumns, searchQuery]);
+    if(!serverSide && enableFilter && debounceSearchQuery.trim()){
+      return data.filter((row) =>
+        searchableColumns?.some((key) =>
+          String(row[key]).toLowerCase().includes(debounceSearchQuery.trim().toLowerCase())
+        )
+      );
+    }else{
+      return data
+    }
+  }, [data, debounceSearchQuery, enableFilter, searchableColumns, serverSide]);
 
   const table = useReactTable({
     columns,
     data: filteredData,
     getCoreRowModel: getCoreRowModel(),
     getSortedRowModel: enableSorting ? getSortedRowModel() : undefined,
+    manualPagination: serverSide,
+    pageCount: serverSide && totalCount ? Math.ceil(totalCount / pagination.pageSize) : undefined,
     getPaginationRowModel: enablePagination ? getPaginationRowModel() : undefined,
     state: enablePagination ? { pagination } : undefined,
-    onPaginationChange: enablePagination ? setPagination : undefined,
+    onPaginationChange: enablePagination
+      ? (updater, ...rest) => {
+          const newPagination =
+            typeof updater === "function" ? updater(pagination) : updater;
+          if (serverSide && onPageChange) {
+            onPageChange(newPagination.pageIndex, newPagination.pageSize);
+          } else {
+            setPagination(newPagination);
+          }
+        }
+      : undefined,
   });
 
   if (error) {
@@ -77,7 +99,7 @@ const DataTable = <TData extends object, TValue>({
 
   return (
     <div className="overflow-x-auto">
-      {enableFilter && (
+      {!serverSide && enableFilter && (
         <Input
           type="search"
           onChange={(e) => setSearchQuery(e.target.value)}
@@ -164,13 +186,37 @@ const DataTable = <TData extends object, TValue>({
       {/* Pagination */}
       {enablePagination && (
         <div className="flex items-center justify-between py-4">
-          <Button onClick={() => table.previousPage()} disabled={!table.getCanPreviousPage()}>
+          <Button
+            onClick={() =>
+              serverSide && onPageChange
+                ? onPageChange(pagination.pageIndex - 1, pagination.pageSize)
+                : table.previousPage()
+            }
+            disabled={
+              serverSide
+                ? pagination.pageIndex === 0
+                : !table.getCanPreviousPage()
+            }
+
+          >
             Précédent
           </Button>
           <span>
-            Page {table.getState().pagination?.pageIndex + 1} sur {table.getPageCount()}
+            Page {pagination.pageIndex + 1} sur{" "}
+              {serverSide && totalCount
+                ? Math.ceil(totalCount / pagination.pageSize)
+                : table.getPageCount()}
           </span>
-          <Select onValueChange={(e) => setPagination((prev) => ({ ...prev, pageSize: Number(e) }))}>
+          <Select
+            onValueChange={(e) => {
+              const newPageSize = Number(e);
+              if (serverSide && onPageChange) {
+                onPageChange(pagination.pageIndex, newPageSize);
+              } else {
+                setPagination((prev) => ({ ...prev, pageSize: newPageSize }));
+              }
+            }}
+          >
             <SelectTrigger className="w-[180px]">
               <SelectValue placeholder="Lignes par page" />
             </SelectTrigger>
@@ -182,7 +228,18 @@ const DataTable = <TData extends object, TValue>({
               ))}
             </SelectContent>
           </Select>
-          <Button onClick={() => table.nextPage()} disabled={!table.getCanNextPage()}>
+          <Button
+            onClick={() =>
+              serverSide && onPageChange
+                ? onPageChange(pagination.pageIndex + 1, pagination.pageSize)
+                : table.nextPage()
+            }
+            disabled={
+              serverSide && totalCount
+                ? pagination.pageIndex >= Math.ceil(totalCount / pagination.pageSize) - 1
+                : !table.getCanNextPage()
+            }
+          >
             Suivant
           </Button>
         </div>

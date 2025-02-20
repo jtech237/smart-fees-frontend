@@ -1,4 +1,4 @@
-import api from "./api";
+import api from "./";
 
 export async function fetchData<T>(endpoint: string, params?: Record<string, any>): Promise<T>{
   const response = await api.get<T>(endpoint, {params})
@@ -16,7 +16,7 @@ export async function createItem<T, D = any>(endpoint: string, data: D): Promise
 }
 
 export async function updateItem<T, D = any>(endpoint: string, id: number, data: D): Promise<T> {
-  const response = await api.patch<T>(`${endpoint}/${id}`, data);
+  const response = await api.put<T>(`${endpoint}/${id}`, data);
   return response.data;
 }
 

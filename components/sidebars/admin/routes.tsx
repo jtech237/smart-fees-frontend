@@ -1,4 +1,4 @@
-import { LayoutDashboard, School } from 'lucide-react';
+import { LayoutDashboard, ReceiptEuro, School } from 'lucide-react';
 
 export type Routes = typeof routes
 export type RouteItem = typeof routes.menu[number] & {
@@ -15,9 +15,27 @@ export const routes = {
       icon: <LayoutDashboard/>
     },
     {
-      label: "Gestion des classes",
-      route: "/admin/manage/classes",
-      icon: <School/>
+      label: "Etablissement",
+      route: "#",
+      icon: <School/>,
+      children: [
+        {
+          label: "Gestion des classes",
+          route: "/admin/manage/classes"
+        },
+        {
+          label: "Salles de classes",
+          route: "/admin/manage/classrooms"
+        }
+      ]
+    },
+    {
+      label: "Gestion des frais",
+      route: "#",
+      icon: <ReceiptEuro/>,
+      children: [
+        {label: "Types de frais", route: "/admin/manage/fees"},
+      ]
     }
   ]
 }
