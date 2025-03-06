@@ -1,0 +1,30 @@
+# Use a Node.js image
+FROM node:22-alpine
+
+RUN apk update --no-cache && \
+    apk add --no-cache --virtual .build-deps \
+    git \
+    docker \
+    openssh-client
+
+# Set the working directory
+WORKDIR /app
+
+# Copy only package.json and package-lock.json for optimal caching
+COPY package.json package-lock.json ./
+
+# Install dependencies
+RUN npm ci --include=dev && \
+    apk del .build-deps
+
+# Copy the rest of the files
+COPY . .
+
+# Build the Next.js app
+# RUN npm run build
+
+# Expose the port
+EXPOSE 3000
+
+# Start the app
+CMD ["npm", "run", "dev"]

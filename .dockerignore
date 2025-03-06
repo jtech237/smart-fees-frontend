@@ -1,0 +1,14 @@
+**/node_modules
+**/.next
+**/.git
+**/.vscode
+**/Dockerfile*
+**/docker-compose*
+**/.env*
+**/npm-debug.log
+**/docker-compose*
+**/README.md
+**/tests
+**/.idea
+**/dist
+**/coverage

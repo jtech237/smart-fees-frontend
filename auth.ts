@@ -24,7 +24,7 @@ class InvalidCredentials extends CredentialsSignin {
 }
 
 class UnexpectedError extends CredentialsSignin {
-  code: string = "unexepted";
+  code: string = "unexpected";
   message: string = "Internal server error. Contact administrator";
 }
 
