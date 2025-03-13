@@ -9,7 +9,7 @@ export function useClassrooms(){
     queryKey: CLASSROOMS_QUERY_KEY,
     queryFn: async () => {
       const res = await fetchData<ClassroomListResponse>("/classrooms")
-      return res.data
+      return res.items
     }
   })
 }

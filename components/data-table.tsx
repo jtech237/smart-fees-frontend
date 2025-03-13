@@ -52,7 +52,7 @@ const DataTable = <TData extends object, TValue>({
   const [searchQuery, setSearchQuery] = useState("");
   const [pagination, setPagination] = useState({ pageIndex: 0, pageSize: 10 });
 
-  const [debounceSearchQuery] = useDebounceValue(searchQuery, 3000)
+  const [debounceSearchQuery] = useDebounceValue(searchQuery, 500)
 
   const filteredData = useMemo(() => {
     if(!serverSide && enableFilter && debounceSearchQuery.trim()){
@@ -76,7 +76,7 @@ const DataTable = <TData extends object, TValue>({
     getPaginationRowModel: enablePagination ? getPaginationRowModel() : undefined,
     state: enablePagination ? { pagination } : undefined,
     onPaginationChange: enablePagination
-      ? (updater, ...rest) => {
+      ? (updater) => {
           const newPagination =
             typeof updater === "function" ? updater(pagination) : updater;
           if (serverSide && onPageChange) {
@@ -197,7 +197,7 @@ const DataTable = <TData extends object, TValue>({
                 ? pagination.pageIndex === 0
                 : !table.getCanPreviousPage()
             }
-
+            aria-label="Page précédente"
           >
             Précédent
           </Button>
@@ -239,6 +239,7 @@ const DataTable = <TData extends object, TValue>({
                 ? pagination.pageIndex >= Math.ceil(totalCount / pagination.pageSize) - 1
                 : !table.getCanNextPage()
             }
+            aria-label="Page suivante"
           >
             Suivant
           </Button>

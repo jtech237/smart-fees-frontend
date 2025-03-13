@@ -9,7 +9,7 @@ export interface Fee{
   dueDate?: string | Date
 
   classe: Pick<Classe, 'id' | 'name'>
-  feeType: FeeType
+  feesType: FeeType
 }
 
 export interface FullFee extends Fee{
@@ -28,4 +28,17 @@ export interface FeeType{
 export interface FeesResponse{
   items: Fee[]
   count: number
+}
+
+export interface FeeCreatePayload {
+  classe: number;
+  fees_type_id: number;
+  amount: number;
+  description?: string;
+  due_date?: string;
+  academic_year: string;
+}
+
+export interface FeeUpdatePayload extends Partial<FeeCreatePayload> {
+  id: number;
 }

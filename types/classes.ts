@@ -15,10 +15,8 @@ export interface FullClasse extends Classe{
 }
 
 export interface ClasseListResponse {
-  total: number
-  skip: number
-  limit: number
-  data: Array<Classe>
+  count: number
+  items: Array<Classe>
 }
 
 export interface ClasseItemResponse extends Classe{

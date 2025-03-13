@@ -12,10 +12,8 @@ export interface FullClassroom extends Classroom{
 }
 
 export interface ClassroomListResponse{
-  total: number
-  skip: number
-  limit: number
-  data: Array<Classroom>
+  count: number;
+  items: Array<Classroom>
 }
 
 export interface ClasseroomItemResponse extends Classroom{

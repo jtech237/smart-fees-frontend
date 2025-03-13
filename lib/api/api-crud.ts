@@ -20,6 +20,11 @@ export async function updateItem<T, D = any>(endpoint: string, id: number, data:
   return response.data;
 }
 
+export async function patchItem<T, D = any>(endpoint: string, id: number, data: D): Promise<T> {
+  const response = await api.patch<T>(`${endpoint}/${id}`, data);
+  return response.data;
+}
+
 export async function deleteItem(endpoint: string, id: number): Promise<void> {
   await api.delete(`${endpoint}/${id}`);
 }

@@ -10,7 +10,7 @@ export function useClasses(){
     queryKey: CLASSES_QUERY_KEY,
     queryFn: async () => {
       const response = await fetchData<ClasseListResponse>("/classes")
-      return response.data
+      return response.items
     }
   })
 }

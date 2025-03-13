@@ -16,7 +16,6 @@ const SidebarDropdown: React.FC<SidebarDropdownProps> = ({ items }) => {
     <ul className="mb-5.5 mt-5 flex flex-col gap-2.5 pl-6">
       {items.map((item) => {
         const isActive = pathname === item.route;
-        console.log(isActive, pathname, item.route)
         return (
           <li key={item.route}>
             <Link

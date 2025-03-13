@@ -17,8 +17,8 @@ const SidebarMenuGroup: React.FC<SidebarMenuGroupProps> = ({ name, items, page, 
         {name.toLocaleUpperCase()}
       </h3>
       <ul className="mb-6 flex flex-col gap-1.5">
-        {items.map((item) => (
-          <SidebarItem key={item.route} item={item} page={page} setPage={setPage} />
+        {items.map((item, i) => (
+          <SidebarItem key={`sidebar-item-${i}`} item={item} page={page} setPage={setPage} />
         ))}
       </ul>
     </div>
