@@ -15,7 +15,7 @@ export const routes = {
       icon: <LayoutDashboard/>
     },
     {
-      label: "Etablissement",
+      label: "Établissement",
       route: "#",
       icon: <School/>,
       children: [
@@ -30,11 +30,12 @@ export const routes = {
       ]
     },
     {
-      label: "Gestion des frais",
+      label: "Frais scolaires",
       route: "#",
       icon: <ReceiptEuro/>,
       children: [
-        {label: "Types de frais", route: "/admin/manage/fees"},
+        {label: "Frais de scolarités", route: "/admin/manage/fees"},
+        {label: "Types de frais", route: "/admin/manage/fees/types"},
       ]
     }
   ]

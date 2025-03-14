@@ -273,7 +273,7 @@ export default function FeesForm({ initialData, onSuccess }: Props) {
 
         {/* Date Limite Conditionnelle */}
         {selectedFeeType?.isDueDateFixed && (
-          <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
+          <div>
             <FormField
               control={form.control}
               name="dueDate"

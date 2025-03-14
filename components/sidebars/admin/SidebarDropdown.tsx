@@ -21,11 +21,12 @@ const SidebarDropdown: React.FC<SidebarDropdownProps> = ({ items }) => {
             <Link
               href={item.route}
               className={cn(
-                isActive && "text-foreground",
-                "group relative flex items-center gap-2.5 rounded-sm px-4 font-medium duration-300 ease-in-out hover:text-white text-muted-foreground"
+                isActive ? "text-white" : "text-muted-foreground",
+                "group relative flex items-center gap-2.5 rounded-sm px-4 font-medium duration-300 ease-in-out hover:text-white"
               )}
             >
               {item.label}
+              {isActive ? "OK" : "NO"}
             </Link>
           </li>
         );

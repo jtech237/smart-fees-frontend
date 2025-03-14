@@ -82,7 +82,7 @@ export function FeeTypeForm({ onSuccess }: { onSuccess: () => void }) {
       name: data.name,
       description: data.description || undefined,
       is_due_date_fixed: data.isDueDateFixed,
-      default_due_date: data.dueDate?.toISOString(),
+      default_due_date: data.dueDate ? format(data.dueDate, "yyyy-MM-dd") :  undefined,
     };
     const operation = createFeeType(dataToSnakeCase);
 
