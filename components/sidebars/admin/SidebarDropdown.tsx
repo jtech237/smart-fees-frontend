@@ -26,7 +26,6 @@ const SidebarDropdown: React.FC<SidebarDropdownProps> = ({ items }) => {
               )}
             >
               {item.label}
-              {isActive ? "OK" : "NO"}
             </Link>
           </li>
         );
