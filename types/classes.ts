@@ -7,6 +7,10 @@ export interface Classe{
   name: string
   depth: number
   parent: ParentClasse | null
+  cycle: {
+    id: number
+    name: string
+  }
 }
 
 export interface FullClasse extends Classe{

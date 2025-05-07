@@ -23,7 +23,7 @@ import {
 import ClasseForm from "@/components/classes/ClasseForm";
 import { toast } from "sonner";
 
-export default function ClasseActions({ classe }: { classe: { id: number; name: string; parent?: number } }) {
+export default function ClasseActions({ classe }: { classe: { id: number; name: string; parent?: number, cycle: number } }) {
   const deleteClasse = useDeleteClasse();
 
   return (

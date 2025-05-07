@@ -16,6 +16,7 @@ import { useState } from 'react';
 const columns: ColumnDef<Classe>[] = [
   { accessorKey: "id", header: "#" },
   { accessorKey: "name", header: "Nom de la classe" },
+  { accessorKey: "cycle", header: "Cycle scolaire", cell: ({row}) => row.original?.cycle.name },
   {
     accessorKey: "parent.name",
     id: "parent_name",
@@ -26,7 +27,7 @@ const columns: ColumnDef<Classe>[] = [
     id: "actions",
     header: "Actions",
     cell: ({ row }) => (
-      <ClasseActions classe={{ id: row.original.id, name: row.original.name, parent: row.original.parent?.id }} />
+      <ClasseActions classe={{ id: row.original.id, name: row.original.name, parent: row.original.parent?.id, cycle: row.original.cycle.id }} />
     ),
   },
 ];
