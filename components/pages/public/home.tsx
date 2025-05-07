@@ -102,7 +102,7 @@ export default function HomePage() {
           {/* Inscription */}
           <TabsContent value="inscription">
             <div className="p-4 bg-white rounded shadow grid sm:grid-cols-12">
-              <div className="flex flex-col items-center sm:col-span-3">
+              <div className="flex flex-col items-center sm:col-span-2">
                 <h2 className="text-xl font-bold mb-4">
                   Inscription{" "}
                   {isNewStudent ? "(Nouveau étudiant)" : "(Ancien étudiant)"}
@@ -128,7 +128,7 @@ export default function HomePage() {
                 </div>
               </div>
 
-              <div className="sm:col-span-9">
+              <div className="sm:col-span-10">
                 {isNewStudent ? (
                   <div className="flex justify-center flex-col space-y-4">
                     <p>

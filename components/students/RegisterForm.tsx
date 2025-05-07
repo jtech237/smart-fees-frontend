@@ -1,7 +1,7 @@
 import { Button } from "../ui/button";
 import React, { useState } from "react";
 import { Stepper } from "./Stepper";
-import { Step1, Step2, Step3 } from "./steps";
+import { Step1, Step2, Step3, Step4 } from "./steps";
 import { useForm } from "react-hook-form";
 import { cn } from "@/lib/utils";
 import { FormValues, fullSchema, stepSchemas } from "./schemas";
@@ -13,15 +13,16 @@ export type StepDef = {
   description?: string
   icon?: React.ReactNode
   component: React.FC
-  validationSchema: typeof stepSchemas[number]
+  validationSchema?: typeof stepSchemas[number]
 }
 
 export type StepStatus = "pending" | "success" | "error"
 
 const steps: StepDef[] = [
   { title: "CGU", component: Step1, validationSchema: stepSchemas[0] },
-  { title: "Perso", component: Step2, validationSchema: stepSchemas[1] },
-  { title: "Connexion", component: Step3, validationSchema: stepSchemas[2] },
+  { title: "Informations personnelles", component: Step2, validationSchema: stepSchemas[1] },
+  { title: "Scolarité", component: Step3, validationSchema: stepSchemas[2] },
+  { title: "Verification", component: Step4 }
 ]
 
 export const RegisterForm = () => {
@@ -32,7 +33,7 @@ export const RegisterForm = () => {
     defaultValues: {
       accept: true,
     },
-    mode: "onBlur"
+    mode: "onChange"
   })
 
   const validateStep = async (idx: number) => {
@@ -77,7 +78,7 @@ export const RegisterForm = () => {
 
         <div className="flex justify-between mt-6">
           {currentStep !== 0 && (
-            <Button type="button" onClick={handlePrev}>Prev</Button>
+            <Button type="button" variant="ghost" onClick={handlePrev}>Precedent</Button>
           ) }
 
           <Button onClick={handleNext} className={cn(
