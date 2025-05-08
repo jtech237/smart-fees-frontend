@@ -97,7 +97,7 @@ export const Stepper: React.FC<StepperProps> = ({
             {idx < steps.length - 1 && (
               <span
                 className={cn(
-                  "absolute top-1/2 right-[-50%] w-full h-[2px] z-[-1]",
+                  "absolute hidden top-1/2 right-[-50%] w-full h-[2px] z-[-1]",
                   lineClasses
                 )}
                 aria-hidden="true"
