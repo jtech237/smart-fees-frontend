@@ -34,7 +34,7 @@ export const step2Schema = z.object({
   email: z.string({required_error: "Adresse email requise"}).email("Email invalide"),
 });
 export const step3Schema = z.object({
-  cycle: z.enum(["1er Cycle", "2ème Cycle", "3ème Cycle"]),
+  cycle: z.number().positive().int(),
   classe_id: z.number().int(),
   entryDiploma: z.string().optional(),
   mention: z.string().optional(),
@@ -47,7 +47,7 @@ export const step3Schema = z.object({
 export const stepSchemas = [step1Schema, step2Schema, step3Schema] as const;
 
 // Type final (intersection des étapes)
-type UnionToIntersection<U> = (U extends any ? (k: U) => void : never) extends (
+type UnionToIntersection<U> = (U extends unknown ? (k: U) => void : never) extends (
   k: infer I
 ) => void
   ? I

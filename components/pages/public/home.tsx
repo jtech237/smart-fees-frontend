@@ -101,7 +101,7 @@ export default function HomePage() {
 
           {/* Inscription */}
           <TabsContent value="inscription">
-            <div className="p-4 bg-white rounded shadow grid sm:grid-cols-12">
+            <div className="p-4  rounded shadow grid sm:grid-cols-12">
               <div className="flex flex-col items-center sm:col-span-2">
                 <h2 className="text-xl font-bold mb-4">
                   Inscription{" "}

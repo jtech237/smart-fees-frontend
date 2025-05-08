@@ -1,3 +1,5 @@
+"use client"
+
 import React from "react";
 import { useFormContext } from "react-hook-form";
 import { Checkbox } from "../ui/checkbox";
@@ -24,6 +26,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "../ui/select";
+import { useCycles } from "@/lib/api/cycles";
 
 export const Step1: React.FC = () => {
   const { control } = useFormContext();
@@ -363,6 +366,7 @@ export const Step2: React.FC = () => {
 export const Step3: React.FC = () => {
   const {
     control} = useFormContext<FormValues>();
+  const {data: cycles} = useCycles()
 
   return (
     <div className="grid md:grid-cols-2 md:grid-rows-2 gap-x-4 gap-y-2">
@@ -376,8 +380,11 @@ export const Step3: React.FC = () => {
           <FormItem>
             <FormLabel>Cycle</FormLabel>
             <Select
-              onValueChange={field.onChange}
-              defaultValue={field.value}
+              onValueChange={(v) => {
+                const cycleId = Number(v)
+                field.onChange(cycleId)
+              }}
+              defaultValue={`${field.value}`}
             >
               <FormControl>
                 <SelectTrigger>
@@ -385,9 +392,9 @@ export const Step3: React.FC = () => {
                 </SelectTrigger>
               </FormControl>
               <SelectContent>
-                {["1er Cycle", "2ème Cycle", "3ème Cycle"].map((value, idx) => (
-                  <SelectItem key={idx} value={value}>
-                    {value}
+                {cycles?.map((value, idx) => (
+                  <SelectItem key={idx} value={`${value.id}`}>
+                    {value.name}
                   </SelectItem>
                 ))}
               </SelectContent>
@@ -421,7 +428,7 @@ export const Step3: React.FC = () => {
           name="entryDiploma"
           render={({ field }) => (
             <FormItem>
-              <FormLabel>Diplome d'entrée</FormLabel>
+              <FormLabel>Diplome d&apos;entrée</FormLabel>
               <FormControl>
                 <Input {...field} />
               </FormControl>
@@ -447,7 +454,7 @@ export const Step3: React.FC = () => {
           name="year"
           render={({ field }) => (
             <FormItem>
-              <FormLabel>Année d'obtention</FormLabel>
+              <FormLabel>{"Année d'obtention"}</FormLabel>
               <FormControl>
                 <Input {...field} />
               </FormControl>
@@ -460,7 +467,7 @@ export const Step3: React.FC = () => {
           name="countryOrigin"
           render={({ field }) => (
             <FormItem>
-              <FormLabel>Pays d'obtention</FormLabel>
+              <FormLabel>{"Pays d'obtention"}</FormLabel>
               <FormControl>
                 <Input {...field} />
               </FormControl>
@@ -473,7 +480,7 @@ export const Step3: React.FC = () => {
           name="obtainingInstitution"
           render={({ field }) => (
             <FormItem>
-              <FormLabel>Institution d'obtention</FormLabel>
+              <FormLabel>{"Institution d'obtention"}</FormLabel>
               <FormControl>
                 <Input {...field} />
               </FormControl>
