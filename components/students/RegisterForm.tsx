@@ -25,13 +25,15 @@ const steps: StepDef[] = [
   { title: "Verification", component: Step4 }
 ]
 
-export const RegisterForm = () => {
+const RegisterForm = () => {
   const [currentStep, setCurrentStep] = useState(0);
   const [stepStatus, setStepStatus] = useState<StepStatus[]>(Array(steps.length).fill("pending"))
   const methods = useForm<FormValues>({
     resolver: zodResolver(fullSchema),
     defaultValues: {
       accept: true,
+      classe_id: 0,
+      cycle: 0
     },
     mode: "onChange"
   })
@@ -91,3 +93,5 @@ export const RegisterForm = () => {
     </Form>
   );
 };
+
+export default RegisterForm

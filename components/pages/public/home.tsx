@@ -1,6 +1,7 @@
 "use client";
-import { RegisterForm } from "@/components/students/RegisterForm";
 import { Button } from "@/components/ui/button";
+import { Label } from "@/components/ui/label";
+import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import {
   Select,
   SelectContent,
@@ -9,6 +10,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import dynamic from "next/dynamic";
 import Image from "next/image";
 import { useState } from "react";
 import { useLocalStorage } from "usehooks-ts";
@@ -29,6 +31,13 @@ const LANGUAGES = [
     ],
   },
 ];
+
+const RegisterForm = dynamic(
+  () => import("@/components/students/RegisterForm"),
+  {
+    loading: () => <p>Loading...</p>,
+  }
+);
 
 export default function HomePage() {
   const [lang, setLang] = useLocalStorage("lang", "fr");
@@ -110,21 +119,27 @@ export default function HomePage() {
                 {/* Bouton pour basculer entre Nouveau et Ancien étudiant */}
                 <div className="mb-4">
                   <span className="mr-2">Vous êtes :</span>
-                  <Button
-                    variant={isNewStudent ? "default" : "ghost"}
-                    onClick={() => setIsNewStudent(true)}
-                    size="sm"
+                  <RadioGroup
+                    onValueChange={(v) => {
+                      if (v === "new") {
+                        setIsNewStudent(true);
+                      } else if (v === "old") {
+                        setIsNewStudent(false);
+                      } else {
+                        setIsNewStudent(true);
+                      }
+                    }}
+                    defaultValue={isNewStudent ? "new" : "old"}
                   >
-                    Nouveau étudiant
-                  </Button>
-                  <Button
-                    variant={!isNewStudent ? "default" : "ghost"}
-                    onClick={() => setIsNewStudent(false)}
-                    className="ml-2"
-                    size="sm"
-                  >
-                    Ancien étudiant
-                  </Button>
+                    <div className="flex items-center space-x-2">
+                      <RadioGroupItem value="new" id="st-status-new" />
+                      <Label htmlFor="st-status-new">Nouveau étudiant</Label>
+                    </div>
+                    <div className="flex items-center space-x-2">
+                      <RadioGroupItem value="old" id="st-status-old" />
+                      <Label htmlFor="st-status-old">Ancien étudiant</Label>
+                    </div>
+                  </RadioGroup>
                 </div>
               </div>
 

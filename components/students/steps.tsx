@@ -1,6 +1,6 @@
-"use client"
+"use client";
 
-import React from "react";
+import React, { useState } from "react";
 import { useFormContext } from "react-hook-form";
 import { Checkbox } from "../ui/checkbox";
 import {
@@ -27,6 +27,7 @@ import {
   SelectValue,
 } from "../ui/select";
 import { useCycles } from "@/lib/api/cycles";
+import { useClasses, useRequiredDocuments } from "@/lib/api/classes";
 
 export const Step1: React.FC = () => {
   const { control } = useFormContext();
@@ -34,7 +35,7 @@ export const Step1: React.FC = () => {
   return (
     <div>
       <h2 className="text-lg font-medium">CGU</h2>
-      <p className="mt-2 text-sm">
+      <div className="mt-2 text-sm">
         {/* ton long texte ici */}
         <p>
           <span>
@@ -98,7 +99,7 @@ export const Step1: React.FC = () => {
             reprehenderit sed?
           </span>
         </p>
-      </p>
+      </div>
       <FormField
         control={control}
         name="accept"
@@ -126,8 +127,8 @@ export const Step2: React.FC = () => {
     <div>
       <h2 className="text-lg font-medium">Informations personnelles</h2>
       <div className="grid md:grid-cols-2 gap-x-4">
-        <fieldset>
-          <legend>Identification</legend>
+        <fieldset className="p-4 shadow-sm border">
+          <legend className="px-2 text-lg font-semibold">Identification</legend>
           {/* Sexe */}
           <FormField
             control={control}
@@ -267,8 +268,10 @@ export const Step2: React.FC = () => {
             )}
           />
         </fieldset>
-        <fieldset>
-          <legend>Communication et contact</legend>
+        <fieldset className="p-4 shadow-sm border">
+          <legend className="px-2 text-lg font-semibold">
+            Communication et contact
+          </legend>
           <div className="grid">
             <FormField
               control={control}
@@ -278,7 +281,8 @@ export const Step2: React.FC = () => {
                   <FormLabel>Première langue parlée :</FormLabel>
                   <Select
                     onValueChange={field.onChange}
-                    defaultValue={field.value}
+                    value={field.value || undefined}
+                    defaultValue="fr"
                   >
                     <FormControl>
                       <SelectTrigger>
@@ -289,8 +293,8 @@ export const Step2: React.FC = () => {
                       {[
                         { lang: "Francais", code: "fr" },
                         { lang: "Anglais", code: "en" },
-                      ].map((value, idx) => (
-                        <SelectItem key={idx} value={value.code}>
+                      ].map((value) => (
+                        <SelectItem key={value.code} value={value.code}>
                           {value.lang}
                         </SelectItem>
                       ))}
@@ -308,7 +312,8 @@ export const Step2: React.FC = () => {
                   <FormLabel>Deuxième langue parlée :</FormLabel>
                   <Select
                     onValueChange={field.onChange}
-                    defaultValue={field.value}
+                    defaultValue={"en"}
+                    value={field.value || undefined}
                   >
                     <FormControl>
                       <SelectTrigger>
@@ -317,10 +322,10 @@ export const Step2: React.FC = () => {
                     </FormControl>
                     <SelectContent>
                       {[
-                        { lang: "Anglais", code: "en" },
                         { lang: "Francais", code: "fr" },
-                      ].map((value, idx) => (
-                        <SelectItem key={idx} value={value.code}>
+                        { lang: "Anglais", code: "en" },
+                      ].map((value) => (
+                        <SelectItem key={value.code} value={value.code}>
                           {value.lang}
                         </SelectItem>
                       ))}
@@ -364,65 +369,126 @@ export const Step2: React.FC = () => {
 };
 
 export const Step3: React.FC = () => {
-  const {
-    control} = useFormContext<FormValues>();
-  const {data: cycles} = useCycles()
+  const { control } = useFormContext<FormValues>();
+
+  const { data: cycles } = useCycles();
+  const [cycleId, setCycleId] = useState<number | undefined>(undefined);
+  const [classeId, setClasseId] = useState<number | undefined>(undefined);
+
+  const { data: classes = [] } = useClasses({
+    cycle_id: cycleId,
+    orphan: true,
+  });
+
+  const { data: requiredDocs = [] } = useRequiredDocuments({
+    classeId: classeId as number,
+  });
 
   return (
     <div className="grid md:grid-cols-2 md:grid-rows-2 gap-x-4 gap-y-2">
-      <fieldset>
-        <legend>Choix de la classe</legend>
+      <fieldset className="p-4 shadow-sm border">
+        <legend className="px-2 text-lg font-semibold">
+          Choix de la classe
+        </legend>
         {/* Cycle */}
-      <FormField
-        control={control}
-        name="cycle"
-        render={({ field }) => (
-          <FormItem>
-            <FormLabel>Cycle</FormLabel>
-            <Select
-              onValueChange={(v) => {
-                const cycleId = Number(v)
-                field.onChange(cycleId)
-              }}
-              defaultValue={`${field.value}`}
-            >
-              <FormControl>
-                <SelectTrigger>
-                  <SelectValue placeholder="Selectionner un cycle" />
-                </SelectTrigger>
-              </FormControl>
-              <SelectContent>
-                {cycles?.map((value, idx) => (
-                  <SelectItem key={idx} value={`${value.id}`}>
-                    {value.name}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-            <FormMessage />
-          </FormItem>
-        )}
-      />
-      {/* Classe */}
-      <FormField
-        control={control}
-        name="classe_id"
-        render={({ field }) => (
-          <FormItem>
-            <FormLabel>Classe</FormLabel>
-            <FormControl>
-              <Input {...field} />
-            </FormControl>
-            <FormMessage />
-          </FormItem>
-        )}
-      />
+        <FormField
+          control={control}
+          name="cycle"
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel>Cycle</FormLabel>
+              <Select
+                onValueChange={(v) => {
+                  const cycleId = v ? Number(v) : undefined;
+                  setCycleId(cycleId);
+                  field.onChange(cycleId);
+                }}
+                value={field.value ? `${field.value}` : undefined}
+              >
+                <FormControl>
+                  <SelectTrigger>
+                    <SelectValue placeholder="Selectionner un cycle" />
+                  </SelectTrigger>
+                </FormControl>
+                <SelectContent>
+                  {cycles?.map((value, idx) => (
+                    <SelectItem key={idx} value={value.id.toString()}>
+                      {value.name}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
+        {/* Classe */}
+        <FormField
+          control={control}
+          name="classe_id"
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel>Classe souhaitee</FormLabel>
+              <Select
+                onValueChange={(v) => {
+                  const classeId = v ? Number(v) : undefined;
+                  setClasseId(classeId);
+                  field.onChange(classeId);
+                }}
+                value={field.value ? `${field.value}` : undefined}
+                disabled={!cycleId}
+              >
+                <FormControl>
+                  <SelectTrigger>
+                    <SelectValue
+                      placeholder={
+                        cycleId
+                          ? "Selectionner une classe"
+                          : "Choisir un cycle d'abord"
+                      }
+                    />
+                  </SelectTrigger>
+                </FormControl>
+                <SelectContent>
+                  {classes.length > 0 ? (
+                    classes.map((value, idx) => (
+                      <SelectItem key={idx} value={`${value.id}`}>
+                        {value.name}
+                      </SelectItem>
+                    ))
+                  ) : (
+                    <div className="px-2 py-1.5 text-sm text-muted-foreground">
+                      Aucune classe disponible
+                    </div>
+                  )}
+                </SelectContent>
+              </Select>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
       </fieldset>
-      <fieldset className="col-start-1 row-start-2">
-        <legend>Pièces à completer pour la formation</legend>
+      <fieldset className="p-4 shadow-sm border col-start-1 row-start-2">
+        <legend className="px-2 text-lg font-semibold">
+          Pièces à completer pour la formation
+        </legend>
+        {requiredDocs.length > 0 ? (
+          <ol className="list-decimal list-inside">
+            {requiredDocs.map((req, idx) => (
+              <li key={idx}>
+                <span>{req.name}</span>
+                <p>{req.description}</p>
+              </li>
+            ))}
+          </ol>
+        ) : (
+          <p>Aucun document requis pour cette classe</p>
+        )}
       </fieldset>
-      <fieldset className="row-span-2 col-start-2 row-start-1">
-        <legend>Information de qualification</legend>
+      <fieldset className="p-4 shadow-sm border row-span-2 col-start-2 row-start-1">
+        <legend className="px-2 text-lg font-semibold">
+          Information de qualification
+        </legend>
         <FormField
           control={control}
           name="entryDiploma"
@@ -435,7 +501,7 @@ export const Step3: React.FC = () => {
               <FormMessage />
             </FormItem>
           )}
-          />
+        />
         <FormField
           control={control}
           name="mention"
@@ -494,9 +560,5 @@ export const Step3: React.FC = () => {
 };
 
 export const Step4: React.FC = () => {
-  return (
-    <div>
-      {/* Affichage des donnees et confirmation */}
-    </div>
-  )
-}
+  return <div>{/* Affichage des donnees et confirmation */}</div>;
+};
