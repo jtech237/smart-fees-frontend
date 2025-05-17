@@ -22,12 +22,20 @@ import {
 } from "@/components/ui/dialog";
 import ClasseForm from "@/components/classes/ClasseForm";
 import { toast } from "sonner";
+import Link from "next/link";
 
-export default function ClasseActions({ classe }: { classe: { id: number; name: string; parent?: number, cycle: number } }) {
+export default function ClasseActions({
+  classe,
+}: {
+  classe: { id: number; name: string; parent?: number; cycle: number };
+}) {
   const deleteClasse = useDeleteClasse();
 
   return (
     <div className="flex space-x-2">
+      <Link href={`/admin/manage/classes/${classe.id}`}>
+        <Button variant={"ghost"}>Afficher</Button>
+      </Link>
       <Dialog>
         <DialogTrigger asChild>
           <Button variant="outline">Modifier</Button>
@@ -36,7 +44,10 @@ export default function ClasseActions({ classe }: { classe: { id: number; name: 
           <DialogHeader>
             <DialogTitle>Modifier {classe.name}</DialogTitle>
           </DialogHeader>
-          <ClasseForm initialData={classe} onSuccess={() => window.location.reload()} />
+          <ClasseForm
+            initialData={classe}
+            onSuccess={() => window.location.reload()}
+          />
         </DialogContent>
       </Dialog>
       <AlertDialog>
@@ -45,10 +56,13 @@ export default function ClasseActions({ classe }: { classe: { id: number; name: 
         </AlertDialogTrigger>
         <AlertDialogContent>
           <AlertDialogHeader>
-            <AlertDialogTitle>Voulez-vous vraiment supprimer cette classe ?</AlertDialogTitle>
+            <AlertDialogTitle>
+              Voulez-vous vraiment supprimer cette classe ?
+            </AlertDialogTitle>
             <AlertDialogDescription>
-              Supprimer cette classe entraînera la suppression des classes enfants et toute autre relation avec cette classe.
-              Cette action est irréversible !
+              Supprimer cette classe entraînera la suppression des classes
+              enfants et toute autre relation avec cette classe. Cette action
+              est irréversible !
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>

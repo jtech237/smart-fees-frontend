@@ -7,6 +7,8 @@ import Link from 'next/link';
 
 import { ThemeSwitch } from '@/components/theme-swith';
 import { useSidebar } from '@/providers/SidebarProviders';
+import { Button } from '@/components/ui/button';
+import { signOut } from 'next-auth/react';
 
 const AdminHeader: React.FC = () => {
   const { isOpen, toggleSidebar } = useSidebar();
@@ -50,6 +52,9 @@ const AdminHeader: React.FC = () => {
           <ul className="flex items-center gap-2 2xsm:gap-4">
             <li>
               <ThemeSwitch />
+            </li>
+            <li>
+              <Button variant={"link"} onClick={() => signOut()}>Deconnexion</Button>
             </li>
           </ul>
         </div>

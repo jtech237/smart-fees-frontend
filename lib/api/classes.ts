@@ -1,7 +1,7 @@
 import { Classe, ClasseListResponse, RequiredDocument } from '@/types/classes';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 
-import { createItem, deleteItem, fetchData, updateItem } from './api-crud';
+import { createItem, deleteItem, fetchData, fetchOne, updateItem } from './api-crud';
 
 const CLASSES_QUERY_KEY = ["classes"]
 
@@ -91,4 +91,13 @@ export function useDeleteClasse() {
       queryClient.invalidateQueries({ queryKey: CLASSES_QUERY_KEY, refetchType: "active"  });
     },
   });
+}
+
+export function useClasse(classeId: number){
+  return useQuery({
+    queryFn: async () => {
+      return await fetchOne<Classe>("/classes", String(classeId))
+    },
+    queryKey: [CLASSES_QUERY_KEY, classeId]
+  })
 }
