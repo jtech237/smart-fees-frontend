@@ -17,7 +17,7 @@ import { RadioGroup, RadioGroupItem } from "../ui/radio-group";
 import { Popover, PopoverContent, PopoverTrigger } from "../ui/popover";
 import { Button } from "../ui/button";
 import { format } from "date-fns";
-import { Calendar1Icon } from "lucide-react";
+import { Calendar1Icon, CheckCircle } from "lucide-react";
 import { Calendar } from "../ui/calendar";
 import {
   Select,
@@ -560,5 +560,42 @@ export const Step3: React.FC = () => {
 };
 
 export const Step4: React.FC = () => {
-  return <div>{/* Affichage des donnees et confirmation */}</div>;
+  const { watch } = useFormContext<FormValues>();
+  const data = watch();
+
+  return (
+    <div className="grid grid-cols-1 md:grid-cols-2 gap-4 p-4">
+      <div className="bg-card rounded-lg p-4 shadow-sm">
+        <h3 className="font-bold text-lg mb-4 border-b pb-2">Informations Personnelles</h3>
+        <div className="space-y-2">
+          <p><span className="font-semibold">Nom :</span> {data.lastName}</p>
+          <p><span className="font-semibold">Prénom :</span> {data.firstName}</p>
+          <p><span className="font-semibold">Date de naissance :</span> {format(new Date(data.birthdate), 'dd/MM/yyyy')}</p>
+          <p><span className="font-semibold">Adresse :</span> {data.address}</p>
+        </div>
+      </div>
+
+      <div className="bg-card rounded-lg p-4 shadow-sm">
+        <h3 className="font-bold text-lg mb-4 border-b pb-2">Informations Scolaires</h3>
+        <div className="space-y-2">
+          <p><span className="font-semibold">Cycle :</span> {data.cycle}</p>
+          <p><span className="font-semibold">Classe :</span> {data.classe_id}</p>
+          <p><span className="font-semibold">Diplôme d&apos;entrée :</span> {data.entryDiploma}</p>
+        </div>
+      </div>
+
+      <div className="col-span-full bg-card rounded-lg p-4 shadow-sm">
+        <h3 className="font-bold text-lg mb-4 border-b pb-2">Validation</h3>
+        <div className="text-center py-4">
+          <CheckCircle className="h-12 w-12 text-green-500 mx-auto mb-4" />
+          <p className="font-semibold text-lg">
+            Vérifiez attentivement toutes les informations avant soumission
+          </p>
+          <p className="text-muted-foreground mt-2">
+            Cliquez sur &quot;Soumettre&quot; pour finaliser votre inscription
+          </p>
+        </div>
+      </div>
+    </div>
+  );
 };

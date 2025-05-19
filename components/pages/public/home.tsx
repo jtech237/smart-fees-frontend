@@ -1,4 +1,5 @@
 "use client";
+import { FormValues } from "@/components/students/schemas";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
@@ -10,9 +11,10 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { useBeforeUnload } from "@/hooks/useBeforeUnload";
 import dynamic from "next/dynamic";
 import Image from "next/image";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useLocalStorage } from "usehooks-ts";
 
 const LANGUAGES = [
@@ -43,6 +45,36 @@ export default function HomePage() {
   const [lang, setLang] = useLocalStorage("lang", "fr");
   const [activeTab, setActiveTab] = useState("inscription");
   const [isNewStudent, setIsNewStudent] = useState(true);
+  const [formIsDirty, setFormIsDirty] = useState(false);
+  const [formData, setFormData] = useState<FormValues | undefined>(undefined);
+
+  useBeforeUnload(formIsDirty);
+
+  const handleTabChange = (newTab: string) => {
+    if (activeTab === 'inscription' && formIsDirty) {
+      // Persist en mémoire sans confirmation
+      sessionStorage.setItem('unsavedForm', JSON.stringify(formData));
+    }
+    setActiveTab(newTab);
+  };
+
+  const handleStudentTypeChange = (value: string) => {
+    if (formIsDirty) {
+      // Persist avant changement
+      sessionStorage.setItem('unsavedForm', JSON.stringify(formData));
+    }
+    setIsNewStudent(value === 'new');
+    setFormIsDirty(false);
+  };
+
+  useEffect(() => {
+    // Restaurer les données au montage
+    const saved = sessionStorage.getItem('unsavedForm');
+    if (saved) {
+      setFormData(JSON.parse(saved));
+      setFormIsDirty(true);
+    }
+  }, []);
 
   return (
     <>
@@ -93,12 +125,13 @@ export default function HomePage() {
         {/* Slogan ou hero */}
         <div className="text-center py-4 text-lg font-semibold">Slogan ici</div>
       </header>
+
       {/* Contenu principal */}
       <main className="flex-grow container mx-auto py-8">
         <Tabs
           defaultValue="inscription"
           value={activeTab}
-          onValueChange={setActiveTab}
+          onValueChange={handleTabChange}
         >
           <TabsList className="w-full grid grid-cols-5 mb-4 border-b overflow-x-scroll md:overflow-auto">
             <TabsTrigger value="inscription">Inscription</TabsTrigger>
@@ -120,15 +153,7 @@ export default function HomePage() {
                 <div className="mb-4">
                   <span className="mr-2">Vous êtes :</span>
                   <RadioGroup
-                    onValueChange={(v) => {
-                      if (v === "new") {
-                        setIsNewStudent(true);
-                      } else if (v === "old") {
-                        setIsNewStudent(false);
-                      } else {
-                        setIsNewStudent(true);
-                      }
-                    }}
+                    onValueChange={handleStudentTypeChange}
                     defaultValue={isNewStudent ? "new" : "old"}
                   >
                     <div className="flex items-center space-x-2">
@@ -149,7 +174,11 @@ export default function HomePage() {
                     <p>
                       Formulaire d&apos;inscription pour un nouveau étudiant...
                     </p>
-                    <RegisterForm />
+                    <RegisterForm
+                      initialData={formData}
+                      onDirtyChange={setFormIsDirty}
+                      onDataChange={setFormData}
+                    />
                   </div>
                 ) : (
                   <div>
