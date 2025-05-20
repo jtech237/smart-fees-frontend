@@ -1,4 +1,5 @@
 "use client";
+import { LoginForm } from "@/components/students/LoginForm";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
@@ -143,7 +144,7 @@ export default function HomePage() {
                 </div>
               </div>
 
-              <div className="sm:col-span-10">
+              <div className="sm:col-span-10 flex items-start justify-center">
                 {isNewStudent ? (
                   <div className="flex justify-center flex-col space-y-4">
                     <p>
@@ -152,9 +153,8 @@ export default function HomePage() {
                     <RegisterForm />
                   </div>
                 ) : (
-                  <div>
-                    <p>Connexion pour accéder à votre dossier étudiant...</p>
-                    {/* Vous pouvez insérer ici un formulaire d'authentification pour les anciens étudiants */}
+                  <div className="md:w-1/2">
+                    <LoginForm/>
                   </div>
                 )}
               </div>
