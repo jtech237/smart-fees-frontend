@@ -11,5 +11,6 @@ export function useCycles() {
       const response = await fetchData<CycleListResponse>("/cycles");
       return response;
     },
+    staleTime: Infinity
   });
 }

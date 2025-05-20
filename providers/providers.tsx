@@ -14,7 +14,16 @@ export interface AppProvidersProps {
 }
 
 export function AppProviders({ children, themeProps }: AppProvidersProps) {
-  const [queryClient] = useState(() => new QueryClient())
+  const [queryClient] = useState(() => new QueryClient({
+    defaultOptions: {
+      queries: {
+        refetchOnWindowFocus: false,
+        refetchOnReconnect: false,
+        retry: false,
+        staleTime: 5 * 60 *1000
+      }
+    }
+  }))
   return (
     <NextThemesProvider {...themeProps}>
       <SessionProvider>

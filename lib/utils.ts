@@ -24,3 +24,14 @@ export function generateAcademicYears(count: number = 5): string[] {
   }
   return years;
 }
+
+export function stableSerialize(obj: Record<string, unknown>): string{
+  const sortedKeys = Object.keys(obj).sort()
+  const sortedObj: Record<string, unknown> = {}
+  sortedKeys.forEach(key => {
+    sortedObj[key] = obj[key]
+  })
+
+  return JSON.stringify(sortedObj)
+}
+

@@ -11,11 +11,11 @@ export const step2Schema = z.object({
     required_error: "Select your genre",
     invalid_type_error: "Genre invalide",
   }),
-  lastName: z
+  lastname: z
     .string({ required_error: "Votre nom est requis" })
     .min(1, { message: "Votre nom est requis" }),
-  firstName: z.string().optional(),
-  birthdate: z.date().superRefine((val, ctx) => {
+  firstname: z.string().optional(),
+  birthday: z.date().superRefine((val, ctx) => {
     if (val >= new Date()) {
       ctx.addIssue({
         code: z.ZodIssueCode.invalid_date,
@@ -35,7 +35,7 @@ export const step2Schema = z.object({
 });
 export const step3Schema = z.object({
   cycle: z.number().positive().int(),
-  classe_id: z.number().int(),
+  classe: z.number().int(),
   entryDiploma: z.string().optional(),
   mention: z.string().optional(),
   year: z.enum(["2023", "2024"]),
@@ -46,18 +46,6 @@ export const step3Schema = z.object({
 // Tableau immuable
 export const stepSchemas = [step1Schema, step2Schema, step3Schema] as const;
 
-// Type final (intersection des étapes)
-type UnionToIntersection<U> = (U extends unknown ? (k: U) => void : never) extends (
-  k: infer I
-) => void
-  ? I
-  : never;
+export type FormValues = z.infer<typeof fullSchema>;
 
-export type FormValues = UnionToIntersection<
-  z.infer<(typeof stepSchemas)[number]>
->;
-
-export const fullSchema = stepSchemas.reduce(
-  (acc, s) => acc.merge(s),
-  z.object({})
-);
+export const fullSchema = step1Schema.merge(step2Schema).merge(step3Schema);

@@ -1,11 +1,13 @@
 import { Classe, ClasseListResponse, RequiredDocument } from '@/types/classes';
-import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
+import { useMutation, useQuery, useQueryClient, UseQueryOptions } from '@tanstack/react-query';
 
 import { createItem, deleteItem, fetchData, fetchOne, updateItem } from './api-crud';
+import { stableSerialize } from '../utils';
+import { cleanQueryParams } from './hook';
 
 const CLASSES_QUERY_KEY = ["classes"]
 
-export interface ClassesQueryParams{
+export type ClassesQueryParams = {
   search?: string;
   parent_id?: string;
   parent_name?: string
@@ -15,38 +17,27 @@ export interface ClassesQueryParams{
   orphan?: boolean
 }
 
-function cleanClassesQueryParams(params: ClassesQueryParams = {}): Record<string, string|number|boolean>{
-  const defaultParams: Partial<ClassesQueryParams> = {
-    offset: params.offset != null ? params.offset : 0,
-    limit: params.limit != null ? params.limit : 100,
-  }
-
-  const otherParams: Partial<ClassesQueryParams> = Object.fromEntries(
-      Object.entries(params)
-      .filter(([_, v]) => v !== null && v !== undefined && v !== "")
-      .map(([k, v]) => [k, typeof v === "number" ? String(v) : v])
-    )
-
-    return {...defaultParams, ...otherParams}
-}
-
-export function useClasses(params: ClassesQueryParams = {}){
-  const cleanParams = cleanClassesQueryParams(params)
+export function useClasses(params: ClassesQueryParams = {}, options?: UseQueryOptions<Classe[], Error>){
+  const cleanParams = cleanQueryParams(params)
+  const queryKey = [CLASSES_QUERY_KEY, stableSerialize(cleanParams)]
   return useQuery<Classe[], Error>({
-    queryKey: [CLASSES_QUERY_KEY, cleanParams],
+    queryKey,
     queryFn: async () => {
       const response = await fetchData<ClasseListResponse>("/classes", cleanParams)
       return response.items
-    }
+    },
+    ...options
   })
 }
 
-export function useRequiredDocuments(params: {classeId: number}){
+export function useRequiredDocuments(params: {classeId: number}, options?: UseQueryOptions<RequiredDocument[]>){
   return useQuery<RequiredDocument[]>({
-    queryKey: ["required-docs", params],
+    queryKey: ["required-docs", params.classeId],
     queryFn: async () => {
       return await fetchData<RequiredDocument[]>(`/classes/${params.classeId}/required-docs`)
-    }
+    },
+    enabled: !!params.classeId,
+    ...options
   })
 }
 

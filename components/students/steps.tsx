@@ -12,7 +12,7 @@ import {
 } from "../ui/form";
 import { FormValues } from "./schemas";
 import { Input } from "../ui/input";
-import { cn } from "@/lib/utils";
+import { cn, getCurrentAcademicYear } from "@/lib/utils";
 import { RadioGroup, RadioGroupItem } from "../ui/radio-group";
 import { Popover, PopoverContent, PopoverTrigger } from "../ui/popover";
 import { Button } from "../ui/button";
@@ -27,7 +27,7 @@ import {
   SelectValue,
 } from "../ui/select";
 import { useCycles } from "@/lib/api/cycles";
-import { useClasses, useRequiredDocuments } from "@/lib/api/classes";
+import { useClasse, useClasses, useRequiredDocuments } from "@/lib/api/classes";
 
 export const Step1: React.FC = () => {
   const { control } = useFormContext();
@@ -163,7 +163,7 @@ export const Step2: React.FC = () => {
           {/* Nom et prenoms */}
           <FormField
             control={control}
-            name="lastName"
+            name="lastname"
             render={({ field }) => (
               <FormItem>
                 <FormLabel>Nom</FormLabel>
@@ -176,7 +176,7 @@ export const Step2: React.FC = () => {
           />
           <FormField
             control={control}
-            name="firstName"
+            name="firstname"
             render={({ field }) => (
               <FormItem>
                 <FormLabel>Prenom</FormLabel>
@@ -190,7 +190,7 @@ export const Step2: React.FC = () => {
           {/* Date et lieu de naissance */}
           <FormField
             control={control}
-            name="birthdate"
+            name="birthday"
             render={({ field }) => (
               <FormItem className="flex flex-col mt-2">
                 <FormLabel>Date de naissance</FormLabel>
@@ -425,7 +425,7 @@ export const Step3: React.FC = () => {
         {/* Classe */}
         <FormField
           control={control}
-          name="classe_id"
+          name="classe"
           render={({ field }) => (
             <FormItem>
               <FormLabel>Classe souhaitee</FormLabel>
@@ -560,6 +560,7 @@ export const Step3: React.FC = () => {
 };
 
 export const Step4: React.FC = () => {
+<<<<<<< HEAD
   const { watch } = useFormContext<FormValues>();
   const data = watch();
 
@@ -594,6 +595,63 @@ export const Step4: React.FC = () => {
           <p className="text-muted-foreground mt-2">
             Cliquez sur &quot;Soumettre&quot; pour finaliser votre inscription
           </p>
+=======
+  const form = useFormContext<FormValues>();
+  const data = form.getValues();
+  const { data: classe } = useClasse(data.classe);
+  return (
+    <div className="border border-gray-600 dark:border-gray-300">
+      <h2>Verification des donnees</h2>
+      <p>Verifiez vos donnees</p>
+      {/* <!-- Entete et identification --> */}
+      <div className="flex items-center space-x-4 p-4">
+        <div className="h-30 w-30 border border-blue-500 bg-blue-400 dark:bg-blue-300"></div>
+        <div className="">
+          <div className="grid grid-cols-12">
+            <div className="col-span-5 flex flex-col">
+              <span>Monsieur</span>
+              <span>Ne le</span>
+              <span>Nationalite</span>
+              <span>Ville de residence</span>
+            </div>
+            <div className="col-span-7 flex flex-col">
+              <span>{`${data.lastname.toUpperCase()} ${data.firstname}`}</span>
+              <span>{`${format(data.birthday, "d MMMM u")} a ${
+                data.placeOfBirth
+              }`}</span>
+            </div>
+          </div>
+        </div>
+      </div>
+      {/* <!-- Cursus choisie --> */}
+      <div className="p-4">
+        <h3>Formation choisie</h3>
+        <div className="grid grid-cols-9">
+          <div className="col-span-4 flex flex-col">
+            <span>Demande une inscription en classe de</span>
+            <span>Pour le compte de l&apos;annee scolaire</span>
+            <span>Avec pour diplôme d&apos;admission</span>
+          </div>
+          <div className="col-span-5 flex flex-col">
+            <span>{classe?.name}</span>
+            <span>{getCurrentAcademicYear()}</span>
+            <span>{data.entryDiploma ? data.entryDiploma : "aucun"}</span>
+          </div>
+        </div>
+      </div>
+      {/* <!-- Contacts --> */}
+      <div className="p-4">
+        <h3>Contact et communications</h3>
+        <div className="grid grid-cols-9">
+          <div className="col-span-4 flex flex-col">
+            <span>Adresse email</span>
+            <span>Langues parlees</span>
+          </div>
+          <div className="col-span-5 flex flex-col">
+            <span>{data.email}</span>
+            <span>-</span>
+          </div>
+>>>>>>> 9e7078a22edbb72cd47f596cf131167c454c2992
         </div>
       </div>
     </div>
