@@ -1,9 +1,6 @@
 "use client";
-<<<<<<< HEAD
 import { FormValues } from "@/components/students/schemas";
-=======
 import { LoginForm } from "@/components/students/LoginForm";
->>>>>>> 9e7078a22edbb72cd47f596cf131167c454c2992
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
@@ -20,6 +17,8 @@ import dynamic from "next/dynamic";
 import Image from "next/image";
 import { useEffect, useState } from "react";
 import { useLocalStorage } from "usehooks-ts";
+import { FeesCheckForm } from "@/components/students/FeesCheckForm";
+import { IdCheckForm } from "@/components/students/IdCheckForm";
 
 const LANGUAGES = [
   {
@@ -55,9 +54,9 @@ export default function HomePage() {
   useBeforeUnload(formIsDirty);
 
   const handleTabChange = (newTab: string) => {
-    if (activeTab === 'inscription' && formIsDirty) {
+    if (activeTab === "inscription" && formIsDirty) {
       // Persist en mémoire sans confirmation
-      sessionStorage.setItem('unsavedForm', JSON.stringify(formData));
+      sessionStorage.setItem("unsavedForm", JSON.stringify(formData));
     }
     setActiveTab(newTab);
   };
@@ -65,15 +64,15 @@ export default function HomePage() {
   const handleStudentTypeChange = (value: string) => {
     if (formIsDirty) {
       // Persist avant changement
-      sessionStorage.setItem('unsavedForm', JSON.stringify(formData));
+      sessionStorage.setItem("unsavedForm", JSON.stringify(formData));
     }
-    setIsNewStudent(value === 'new');
+    setIsNewStudent(value === "new");
     setFormIsDirty(false);
   };
 
   useEffect(() => {
     // Restaurer les données au montage
-    const saved = sessionStorage.getItem('unsavedForm');
+    const saved = sessionStorage.getItem("unsavedForm");
     if (saved) {
       setFormData(JSON.parse(saved));
       setFormIsDirty(true);
@@ -174,19 +173,15 @@ export default function HomePage() {
 
               <div className="sm:col-span-10 flex items-start justify-center">
                 {isNewStudent ? (
-                  <div className="flex justify-center flex-col space-y-4">
+                  <div className=" space-y-4">
                     <p>
                       Formulaire d&apos;inscription pour un nouveau étudiant...
                     </p>
-                    <RegisterForm
-                      initialData={formData}
-                      onDirtyChange={setFormIsDirty}
-                      onDataChange={setFormData}
-                    />
+                    <RegisterForm />
                   </div>
                 ) : (
                   <div className="md:w-1/2">
-                    <LoginForm/>
+                    <LoginForm />
                   </div>
                 )}
               </div>
@@ -195,7 +190,7 @@ export default function HomePage() {
 
           {/* Paiement */}
           <TabsContent value="payment">
-            <div className="p-4 bg-white rounded shadow">
+            <div className="p-4 rounded shadow">
               <h2 className="text-xl font-bold mb-4">
                 Paiement des frais de scolarité
               </h2>
@@ -242,40 +237,49 @@ export default function HomePage() {
 
           {/* Suivi des frais */}
           <TabsContent value="suivi">
-            <div className="p-4 bg-white rounded shadow">
-              <h2 className="text-xl font-bold mb-4">Suivi de vos frais</h2>
-              <p>Consultez ici l’historique de vos paiements et votre solde.</p>
-              {/* Vous pouvez insérer ici un tableau ou une liste dynamique des transactions */}
-              {/* <LoadingMessage message="Chargement des données..." /> */}
+            <div className="p-4 rounded shadow flex items-center justify-center flex-col">
+              <div className="">
+                <h2>Suivi des frais</h2>
+                <p>
+                  Consultez l'historique de vos paiements a partir de quelques
+                  informations
+                </p>
+              </div>
+              <div className="w-3/5">
+                <FeesCheckForm />
+              </div>
             </div>
           </TabsContent>
 
           {/* Matricule */}
           <TabsContent value="id">
-            <div className="p-4 bg-white rounded shadow">
-              <h2 className="text-xl font-bold mb-4">Votre matricule</h2>
-              <p>
-                Votre matricule vous sera affiché ici après validation de votre
-                inscription.
-              </p>
-              {/* Par exemple, on affiche le matricule récupéré depuis l'API */}
-              <div className="mt-4 p-4 bg-gray-100 rounded">
-                <p className="font-mono text-lg">
-                  Matricule: <strong>SF-2025-00123</strong>
+            <div className="p-4 rounded shadow">
+              <div>
+                <h2 className="text-xl font-bold mb-4">Votre matricule</h2>
+                <p>
+                  Votre matricule vous sera affiché ici après validation de
+                  votre inscription.
                 </p>
+              </div>
+              {/* Par exemple, on affiche le matricule récupéré depuis l'API */}
+
+              <div className="w-3/5">
+                <IdCheckForm />
               </div>
             </div>
           </TabsContent>
 
           {/* Reçu */}
           <TabsContent value="receipt">
-            <div className="p-4 bg-white rounded shadow">
-              <h2 className="text-xl font-bold mb-4">Impression du reçu</h2>
-              <p>Générez et imprimez votre reçu de paiement.</p>
+            <div className="p-4 rounded shadow">
+              <div>
+                <h2 className="text-xl font-bold mb-4">Impression du reçu</h2>
+                <p>Générez et imprimez votre reçu de paiement.</p>
+              </div>
               {/* Bouton pour générer le reçu */}
-              <Button className="mt-4" onClick={() => alert("Reçu généré !")}>
-                Générer le reçu
-              </Button>
+              <div className="w-3/5">
+                <FeesCheckForm />
+              </div>
             </div>
           </TabsContent>
         </Tabs>

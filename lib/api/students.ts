@@ -1,8 +1,9 @@
-import { createItem } from "./api-crud";
+import { createItem, fetchData } from "./api-crud";
 import snakecaseKeys from "snakecase-keys"
 import { FormValues } from "@/components/students/schemas";
-import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { format } from "date-fns";
+import { RegistrationResponse, StudentBaseResponse } from "@/types/user";
 
 type PreRegristrationPayload = FormValues
 type PreRegristrationResponse = {
@@ -15,6 +16,7 @@ type PreRegristrationResponse = {
     name: string;
   };
   matricule: string;
+  password: string
 }
 
 export async function createPreRegistration(data: PreRegristrationPayload){
@@ -32,5 +34,19 @@ export function usePreRegistration() {
     mutationFn: createPreRegistration,
     onSuccess: () => queryClient.invalidateQueries({ queryKey: ['pre-registrations'] }),
   });
+}
+
+export function useStudents(){
+  return useQuery({
+    queryKey: ["students",],
+    queryFn: () => fetchData<StudentBaseResponse>("/students"),
+  })
+}
+
+export function usePreRegistrations(){
+  return useQuery({
+    queryKey: [["students"], "pre-registrations"],
+    queryFn: () => fetchData<RegistrationResponse>("/students/pre-registrations")
+  })
 }
 

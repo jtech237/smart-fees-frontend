@@ -44,8 +44,16 @@ export const routes = {
       icon: <UsersRound/>,
       children: [
         {
-          label: "Liste des etudiants",
+          label: "Liste des étudiants",
           route: "/admin/manage/students"
+        },
+        {
+          label: "Gestion des pre-inscriptions",
+          route: "/admin/manage/pre-registrations",
+        },
+        {
+          label: "Suivi des paiements",
+          route: "/admin/manage/check-paiements"
         }
       ]
     }
