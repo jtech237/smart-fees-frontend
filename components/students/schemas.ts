@@ -6,39 +6,40 @@ export const step1Schema = z.object({
     errorMap: () => ({ message: "Vous devez accepter les CGU" }),
   }),
 });
+
 export const step2Schema = z.object({
   gender: z.enum(["M", "F"], {
-    required_error: "Select your genre",
+    required_error: "Selectionner votre genre",
     invalid_type_error: "Genre invalide",
   }),
   lastname: z
-    .string({ required_error: "Votre nom est requis" })
+    .string().trim()
     .min(1, { message: "Votre nom est requis" }),
-  firstname: z.string().optional(),
-  birthday: z.date().superRefine((val, ctx) => {
-    if (val >= new Date()) {
-      ctx.addIssue({
-        code: z.ZodIssueCode.invalid_date,
-        message:
-          "Date invalide. Vous date de naissance doit être dans le passé",
-      });
-    }
-  }),
-  placeOfBirth: z.string(),
-  city: z.string(),
-  country: z.string(),
-  lang: z.enum(["fr", "en"]).default("fr").optional(),
-  secondLang: z.enum(["fr", "en"]).default("fr").optional(),
-  phone: z.string().optional(),
+  firstname: z.string().trim().optional(),
+  birthday: z
+    .date({
+      required_error: "La date de naissance est requise",
+      invalid_type_error: "Format de date invalide",
+    })
+    .refine(date => date <= new Date(), {
+      message: "La date doit être dans le passé",
+    }),
+  placeOfBirth: z.string().min(1, "Champ requis"),
+  city: z.string().min(1, "Champ requis"),
+  country: z.string().min(1, "Champ requis"),
+  lang: z.enum(["fr", "en"]).default("fr"),
+  secondLang: z.enum(["fr", "en"]).optional(),
+  phone: z.string().regex(/^\+?[0-9]{8,15}$/, "Numéro invalide").optional(),
   address: z.string().optional(),
-  email: z.string({required_error: "Adresse email requise"}).email("Email invalide"),
+  email: z.string().email("Email invalide"),
 });
+
 export const step3Schema = z.object({
-  cycle: z.number().positive().int(),
-  classe: z.number().int(),
-  entryDiploma: z.string().optional(),
+  cycle: z.number().positive(),
+  classe: z.number(),
+  entryDiploma: z.string().min(1, "Champ requis"),
   mention: z.string().optional(),
-  year: z.enum(["2023", "2024"]),
+  year: z.string().trim().optional(),
   countryOrigin: z.string().optional(),
   obtainingInstitution: z.string().optional(),
 });

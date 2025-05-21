@@ -1,7 +1,6 @@
 import { Button } from "../ui/button";
 import React, { useCallback, useState } from "react";
 import { Stepper } from "./Stepper";
-import { Step1, Step2, Step3, Step4 } from "./steps";
 import { useForm } from "react-hook-form";
 import { cn } from "@/lib/utils";
 import { FormValues, fullSchema, stepSchemas } from "./schemas";
@@ -10,6 +9,10 @@ import { Form } from "../ui/form";
 import { usePreRegistration } from "@/lib/api/students";
 import { AxiosError } from "axios";
 import { useStepper } from "./useStepper";
+import { Step1 } from "./steps/Step1";
+import { Step2 } from "./steps/Step2";
+import { Step3 } from "./steps/Step3";
+import { Step4 } from "./steps/Step4";
 
 export type StepDef = {
   title: string;

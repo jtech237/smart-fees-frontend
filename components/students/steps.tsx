@@ -17,7 +17,7 @@ import { RadioGroup, RadioGroupItem } from "../ui/radio-group";
 import { Popover, PopoverContent, PopoverTrigger } from "../ui/popover";
 import { Button } from "../ui/button";
 import { format } from "date-fns";
-import { Calendar1Icon, CheckCircle } from "lucide-react";
+import { Calendar1Icon } from "lucide-react";
 import { Calendar } from "../ui/calendar";
 import {
   Select,
