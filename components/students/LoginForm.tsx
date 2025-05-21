@@ -13,107 +13,120 @@ import { Input } from "../ui/input";
 import { Button } from "../ui/button";
 import { signIn, signOut, useSession } from "next-auth/react";
 import { useRouter } from "next/navigation";
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import { toast } from "sonner";
+import { Loader2 } from "lucide-react";
 
-const loginSchema = z.object({
+export const loginSchema = z.object({
   username: z
     .string({
       required_error: "Veuillez saisir votre matricule",
-      description:
-        "Le matricule est votre identifiant. Si vous l'avez perdu, cliquez sur l'onglet MATRICULE",
+      invalid_type_error: "Format de matricule invalide",
     })
     .min(1, "Veuillez saisir votre matricule"),
-  password: z
-    .string({ required_error: "Veuillez remplir ce champ" })
-    .min(2, "Veuillez saisir votre mot de passe."),
+  password: z.string().min(1, "Veuillez saisir votre mot de passe"),
 });
 
+export type LoginFormValues = z.infer<typeof loginSchema>;
+
 export const LoginForm = () => {
-  const form = useForm<z.infer<typeof loginSchema>>({
-    defaultValues: {
-      username: "",
-      password: "",
-    },
-    resolver: zodResolver(loginSchema),
-    mode: "onBlur",
-  });
-  const { data: session } = useSession();
   const router = useRouter();
-  const [authenticated, setAuthenticated] = useState(false);
+  const { data: session, status } = useSession();
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
-  const onSubmit: SubmitHandler<z.infer<typeof loginSchema>> = async (data) => {
-    console.log(data);
-    try {
-      const result = await signIn("credentials", {
-        ...data,
-        redirect: false,
-      });
-      const code = result?.code;
-      if (code === "unauthorized" || code === "invalid_credentials") {
-        form.setError("root", {
-          message: "Matricule ou mot de passe incorrect",
+  const form = useForm<LoginFormValues>({
+    defaultValues: useMemo(
+      () => ({
+        username: "",
+        password: "",
+      }),
+      []
+    ),
+    resolver: zodResolver(loginSchema),
+    mode: "onTouched",
+  });
+
+  const handleAuthError = useCallback(
+    (message: string) => {
+      toast.error(message);
+      form.setFocus("username");
+      setIsSubmitting(false);
+    },
+    [form]
+  );
+
+  const onSubmit: SubmitHandler<LoginFormValues> = useCallback(
+    async (data) => {
+      console.log(data);
+      try {
+        setIsSubmitting(true);
+        const result = await signIn("credentials", {
+          ...data,
+          redirect: false,
         });
-        form.setFocus("username");
-        return;
+        console.log(result)
+        if (!result?.ok) {
+          const errorMessage =
+            result?.error === "CredentialsSignin"
+              ? "Identifiants incorrects"
+              : "Erreur de connexion";
+          handleAuthError(errorMessage);
+          return;
+        }
+        if(result.error){
+          const errorMessage =
+            result?.error === "CredentialsSignin"
+              ? "Identifiants incorrects"
+              : "Erreur de connexion";
+          handleAuthError(errorMessage);
+          return;
+        }
+        toast.success("Connexion réussie");
+      } catch (error) {
+        handleAuthError("Erreur inattendue");
+        console.error("Login error:", error);
+        console.error(error);
+      } finally {
+        setIsSubmitting(false);
       }
+    },
+    [handleAuthError]
+  );
 
-      if (code === null) {
-        setAuthenticated(true);
+  useEffect(() => {
+    if (status === "authenticated") {
+      if (session?.user.role !== "STUDENT") {
+        signOut({ redirect: false });
+      } else {
+        router.push("/students");
       }
-    } catch (error) {
-      form.setError(`root`, {
-        message: "Unknown error occurred",
-      });
-      console.error(error);
     }
-  };
-
-  useEffect(() => {
-    if (session?.user) {
-      setAuthenticated(true);
-    } else if (session?.user.role !== "STUDENT") {
-      signOut({ redirect: false })
-      form.setError("root", {
-        message: "Vous n'avez pas acces a cette partie du site",
-      });
-      setAuthenticated(false);
-    }
-  }, [form, session]);
-  useEffect(() => {
-    if (authenticated) {
-      router.push("/students");
-    }
-  }, [authenticated, router]);
-
-  useEffect(() => {
-    if (form.formState.errors.root) {
-      toast.error(form.formState.errors.root.message);
-    }
-  }, [form.formState.errors.root]);
+  }, [router, session?.user.role, status]);
 
   return (
     <>
       <Form {...form}>
-        <form onSubmit={form.handleSubmit(onSubmit)}>
-          {form.formState.errors.root?.message && (
-            <p
-              role="alert"
-              className="p-4 bg-destructive text-destructive-foreground"
-            >
-              {form.formState.errors.root.message}
-            </p>
-          )}
+        <form
+          onSubmit={form.handleSubmit(onSubmit)}
+          noValidate
+          className="space-y-6"
+        >
           <FormField
             control={form.control}
             name="username"
-            render={({ field }) => (
+            render={({ field, fieldState }) => (
               <FormItem>
                 <FormLabel>Matricule</FormLabel>
                 <FormControl>
-                  <Input {...field} placeholder="Entrez votre matricule" />
+                  <Input
+                    {...field}
+                    autoComplete="username"
+                    aria-describedby="username-error"
+                    aria-invalid={fieldState.invalid}
+                    placeholder="Entrez votre matricule"
+                  />
                 </FormControl>
-                <FormMessage />
+                <FormMessage id="username-error" />
               </FormItem>
             )}
           />
@@ -121,24 +134,33 @@ export const LoginForm = () => {
           <FormField
             control={form.control}
             name="password"
-            render={({ field }) => (
+            render={({ field, fieldState }) => (
               <FormItem className="flex space-y-3 flex-col mt-3">
                 <FormLabel>Mot de passe</FormLabel>
                 <FormControl>
-                  <Input {...field} type="password" placeholder="*******" />
+                  <Input
+                    {...field}
+                    autoComplete="current-password"
+                    aria-invalid={fieldState.invalid}
+                    aria-describedby="password-error"
+                    type="password"
+                    placeholder="*******"
+                  />
                 </FormControl>
-                <FormMessage />
+                <FormMessage id="password-error" />
               </FormItem>
             )}
           />
-          <div className="flex items-center mt-2">
-            <Button
-              className="w-full"
-              disabled={form.formState.isSubmitting || authenticated}
-            >
-              Se connecter
-            </Button>
-          </div>
+          <Button
+            type="submit"
+            className="w-full"
+            disabled={isSubmitting || status === "loading"}
+          >
+            {isSubmitting ? (
+              <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+            ) : null}
+            Se connecter
+          </Button>
         </form>
       </Form>
     </>

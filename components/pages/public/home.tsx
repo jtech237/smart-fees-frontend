@@ -15,10 +15,11 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useBeforeUnload } from "@/hooks/useBeforeUnload";
 import dynamic from "next/dynamic";
 import Image from "next/image";
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { useLocalStorage } from "usehooks-ts";
 import { FeesCheckForm } from "@/components/students/FeesCheckForm";
 import { IdCheckForm } from "@/components/students/IdCheckForm";
+import { Skeleton } from "@/components/ui/skeleton";
 
 const LANGUAGES = [
   {
@@ -37,10 +38,13 @@ const LANGUAGES = [
   },
 ];
 
+const TABS = ["inscription", "payment", "check", "id", "receipt"] as const;
+
 const RegisterForm = dynamic(
   () => import("@/components/students/RegisterForm"),
   {
-    loading: () => <p>Loading...</p>,
+    loading: () => <Skeleton />,
+    ssr: false,
   }
 );
 
@@ -53,22 +57,39 @@ export default function HomePage() {
 
   useBeforeUnload(formIsDirty);
 
-  const handleTabChange = (newTab: string) => {
-    if (activeTab === "inscription" && formIsDirty) {
-      // Persist en mémoire sans confirmation
-      sessionStorage.setItem("unsavedForm", JSON.stringify(formData));
+  const handleHashNavigation = useCallback(() => {
+    const hash = window.location.hash.replace("#", "");
+    if (hash && TABS.includes(hash as (typeof TABS)[number])) {
+      setActiveTab(hash);
     }
-    setActiveTab(newTab);
-  };
+  }, []);
 
-  const handleStudentTypeChange = (value: string) => {
-    if (formIsDirty) {
-      // Persist avant changement
-      sessionStorage.setItem("unsavedForm", JSON.stringify(formData));
-    }
-    setIsNewStudent(value === "new");
-    setFormIsDirty(false);
-  };
+  useEffect(() => {
+    handleHashNavigation();
+    window.addEventListener("hashchange", handleHashNavigation);
+    return () => window.removeEventListener("hashchange", handleHashNavigation);
+  }, [handleHashNavigation]);
+
+  const handleTabChange = useCallback(
+    (newTab: string) => {
+      if (activeTab === "inscription" && formIsDirty) {
+        sessionStorage.setItem("unsavedForm", JSON.stringify(formData));
+      }
+      window.location.hash = newTab;
+    },
+    [activeTab, formIsDirty, formData]
+  );
+
+  const handleStudentTypeChange = useCallback(
+    (value: string) => {
+      if (formIsDirty) {
+        sessionStorage.setItem("unsavedForm", JSON.stringify(formData));
+      }
+      setIsNewStudent(value === "new");
+      setFormIsDirty(false);
+    },
+    [formIsDirty, formData]
+  );
 
   useEffect(() => {
     // Restaurer les données au montage
@@ -87,23 +108,28 @@ export default function HomePage() {
           <div className="flex items-center space-x-4">
             <Image
               width={50}
+              height={50}
               src={"/assets/images/logos/icon.svg"}
               alt="App Logo"
-              height={50}
+              priority
             />
             <div className="w-40 h-12 relative">
               <Image
                 src={"/assets/images/logos/text-only.webp"}
                 alt="Smart Fees"
-                layout="fill"
-                objectFit="contain"
+                fill
+                className="object-contain"
+                priority
               />
             </div>
           </div>
           {/* Nav */}
-          <nav className="flex items-center space-x-4 mt-4 md:mt-0">
+          <nav className="flex items-center gap-4 mt-4 md:mt-0">
             <Select value={lang} onValueChange={setLang}>
-              <SelectTrigger aria-label="Sélection de la langue">
+              <SelectTrigger
+                className="min-w-[120px]"
+                aria-label="Sélection de la langue"
+              >
                 <SelectValue placeholder="Langue" />
               </SelectTrigger>
               <SelectContent>
@@ -119,14 +145,30 @@ export default function HomePage() {
                 })}
               </SelectContent>
             </Select>
-            <div className="flex space-x-2">
-              <Button>Se Connecter</Button>
-              <Button>S&lsquo;inscrire</Button>
+            <div className="flex gap-2">
+              <Button
+                onClick={() => {
+                  window.location.hash = "inscription";
+                  setIsNewStudent(false);
+                }}
+              >
+                Se Connecter
+              </Button>
+              <Button
+                onClick={() => {
+                  window.location.hash = "inscription";
+                  setIsNewStudent(true);
+                }}
+              >
+                S&lsquo;inscrire
+              </Button>
             </div>
           </nav>
         </div>
         {/* Slogan ou hero */}
-        <div className="text-center py-4 text-lg font-semibold">Slogan ici</div>
+        <div className="text-center py-4 text-lg font-semibold bg-black/10">
+          Simplifiez la gestion des frais scolaire
+        </div>
       </header>
 
       {/* Contenu principal */}
@@ -136,51 +178,55 @@ export default function HomePage() {
           value={activeTab}
           onValueChange={handleTabChange}
         >
-          <TabsList className="w-full grid grid-cols-5 mb-4 border-b overflow-x-scroll md:overflow-auto">
+          <TabsList className="w-full grid grid-cols-5 mb-4 border-b overflow-x-auto">
             <TabsTrigger value="inscription">Inscription</TabsTrigger>
             <TabsTrigger value="payment">Paiement</TabsTrigger>
-            <TabsTrigger value="suivi">Suivi des frais</TabsTrigger>
+            <TabsTrigger value="check">Suivi des frais</TabsTrigger>
             <TabsTrigger value="id">Matricule</TabsTrigger>
             <TabsTrigger value="receipt">Reçu</TabsTrigger>
           </TabsList>
 
           {/* Inscription */}
           <TabsContent value="inscription">
-            <div className="p-4  rounded shadow grid sm:grid-cols-12">
+            <div className="p-4 rounded shadow grid sm:grid-cols-12 gap-6">
               <div className="flex flex-col items-center sm:col-span-2">
                 <h2 className="text-xl font-bold mb-4">
-                  Inscription{" "}
-                  {isNewStudent ? "(Nouveau étudiant)" : "(Ancien étudiant)"}
+                  {lang === "fr"
+                    ? isNewStudent
+                      ? "Nouveau eleve"
+                      : "Ancien eleve"
+                    : isNewStudent
+                    ? "New student"
+                    : "Returning student"}
                 </h2>
                 {/* Bouton pour basculer entre Nouveau et Ancien étudiant */}
-                <div className="mb-4">
-                  <span className="mr-2">Vous êtes :</span>
-                  <RadioGroup
-                    onValueChange={handleStudentTypeChange}
-                    defaultValue={isNewStudent ? "new" : "old"}
-                  >
-                    <div className="flex items-center space-x-2">
-                      <RadioGroupItem value="new" id="st-status-new" />
-                      <Label htmlFor="st-status-new">Nouveau étudiant</Label>
-                    </div>
-                    <div className="flex items-center space-x-2">
-                      <RadioGroupItem value="old" id="st-status-old" />
-                      <Label htmlFor="st-status-old">Ancien étudiant</Label>
-                    </div>
-                  </RadioGroup>
-                </div>
+
+                <RadioGroup
+                  onValueChange={handleStudentTypeChange}
+                  defaultValue={isNewStudent ? "new" : "old"}
+                >
+                  <div className="flex items-center gap-2">
+                    <RadioGroupItem value="new" id="st-status-new" />
+                    <Label htmlFor="st-status-new">
+                      {lang === "fr" ? "Nouveau" : "New"}
+                    </Label>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <RadioGroupItem value="old" id="st-status-old" />
+                    <Label htmlFor="st-status-old">
+                      {lang === "fr" ? "Ancien" : "Returning"}
+                    </Label>
+                  </div>
+                </RadioGroup>
               </div>
 
-              <div className="sm:col-span-10 flex items-start justify-center">
+              <div className="sm:col-span-10">
                 {isNewStudent ? (
-                  <div className=" space-y-4">
-                    <p>
-                      Formulaire d&apos;inscription pour un nouveau étudiant...
-                    </p>
+                  <div className="mx-auto">
                     <RegisterForm />
                   </div>
                 ) : (
-                  <div className="md:w-1/2">
+                  <div className="max-w-md mx-auto">
                     <LoginForm />
                   </div>
                 )}
@@ -190,62 +236,39 @@ export default function HomePage() {
 
           {/* Paiement */}
           <TabsContent value="payment">
-            <div className="p-4 rounded shadow">
-              <h2 className="text-xl font-bold mb-4">
-                Paiement des frais de scolarité
+            <div className="p-4 rounded shadow grid gap-4">
+              <h2 className="text-xl font-bold">
+                {lang === "fr" ? "Paiement des frais" : "Fees payment"}
               </h2>
-              <p className="mb-4">Sélectionnez votre mode de paiement :</p>
-              <div className="flex space-x-4">
+              <div className="flex flex-wrap gap-4">
                 {/* Boutons de paiement */}
-                <Button>
-                  <Image
-                    src="/assets/mtn-momo.png"
-                    alt="MTN MOMO"
-                    width={40}
-                    height={40}
-                    objectFit="contain"
-                  />
-                  <span className="ml-2">MTN MOMO</span>
-                </Button>
-                <Button>
-                  <Image
-                    src="/assets/orange-money.png"
-                    alt="Orange Money"
-                    width={40}
-                    height={40}
-                    objectFit="contain"
-                  />
-                  <span className="ml-2">Orange Money</span>
-                </Button>
-                <Button>
-                  <Image
-                    src="/assets/express-union.png"
-                    alt="Express Union"
-                    width={40}
-                    height={40}
-                    objectFit="contain"
-                  />
-                  <span className="ml-2">Express Union</span>
-                </Button>
-              </div>
-              {/* Formulaire de paiement */}
-              <div className="mt-4">
-                <p>Formulaire de paiement à intégrer ici...</p>
+                {["mtn-momo", "orange-money", "express-union"].map(
+                  (provider) => (
+                    <Button key={provider} className="flex items-center gap-2">
+                      <Image
+                        src={`/assets/${provider}.png`}
+                        alt={provider}
+                        width={40}
+                        height={40}
+                        className="object-contain"
+                      />
+                      <span className="capitalize">
+                        {provider.replace("-", " ")}
+                      </span>
+                    </Button>
+                  )
+                )}
               </div>
             </div>
           </TabsContent>
 
           {/* Suivi des frais */}
-          <TabsContent value="suivi">
-            <div className="p-4 rounded shadow flex items-center justify-center flex-col">
-              <div className="">
-                <h2>Suivi des frais</h2>
-                <p>
-                  Consultez l'historique de vos paiements a partir de quelques
-                  informations
-                </p>
-              </div>
-              <div className="w-3/5">
+          <TabsContent value="check">
+            <div className="p-4 rounded shadow flex flex-col items-center gap-4">
+              <h2 className="text-xl font-bold">
+                {lang === "fr" ? "Suivi des paiements" : "Payment tracking"}
+              </h2>
+              <div className="w-full max-w-xl">
                 <FeesCheckForm />
               </div>
             </div>
@@ -253,17 +276,13 @@ export default function HomePage() {
 
           {/* Matricule */}
           <TabsContent value="id">
-            <div className="p-4 rounded shadow">
-              <div>
-                <h2 className="text-xl font-bold mb-4">Votre matricule</h2>
-                <p>
-                  Votre matricule vous sera affiché ici après validation de
-                  votre inscription.
-                </p>
-              </div>
-              {/* Par exemple, on affiche le matricule récupéré depuis l'API */}
-
-              <div className="w-3/5">
+            <div className="p-4 rounded shadow flex flex-col items-center gap-4">
+              <h2 className="text-xl font-bold">
+                {lang === "fr"
+                  ? "Vérification de matricule"
+                  : "Student ID Check"}
+              </h2>
+              <div className="w-full max-w-xl">
                 <IdCheckForm />
               </div>
             </div>
@@ -271,13 +290,11 @@ export default function HomePage() {
 
           {/* Reçu */}
           <TabsContent value="receipt">
-            <div className="p-4 rounded shadow">
-              <div>
-                <h2 className="text-xl font-bold mb-4">Impression du reçu</h2>
-                <p>Générez et imprimez votre reçu de paiement.</p>
-              </div>
-              {/* Bouton pour générer le reçu */}
-              <div className="w-3/5">
+            <div className="p-4 rounded shadow flex flex-col items-center gap-4">
+              <h2 className="text-xl font-bold">
+                {lang === "fr" ? "Reçu de paiement" : "Payment receipt"}
+              </h2>
+              <div className="w-full max-w-xl">
                 <FeesCheckForm />
               </div>
             </div>
@@ -287,16 +304,16 @@ export default function HomePage() {
 
       {/* Pied de page */}
       <footer className="bg-slate-400 text-white py-4">
-        <div className="container mx-auto flex flex-col md:flex-row justify-between">
-          <div className="mb-2 md:mb-0">
-            <p>Contacts : email@example.com</p>
-            <p>Adresse : 123 Rue Exemple, Ville</p>
-            <p>Téléphone : +123456789</p>
+        <div className="container mx-auto flex flex-col md:flex-row justify-between gap-4 text-sm">
+          <div className="space-y-1">
+            <p>📧 contact@smartfees.cm</p>
+            <p>🏠 Rue 1.234, Yaoundé, Cameroun</p>
+            <p>📞 +237 6 00 00 00 00</p>
           </div>
-          <div>
+          <div className="text-center md:text-right">
             <p>
-              &copy; {new Date().getFullYear()} Smart Fees. Tous droits
-              réservés.
+              © {new Date().getFullYear()} Smart Fees -{" "}
+              {lang === "fr" ? "Tous droits réservés" : "All rights reserved"}
             </p>
           </div>
         </div>
