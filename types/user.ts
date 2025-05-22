@@ -48,6 +48,29 @@ interface RegistrationResponse {
   count: number;
 }
 
+interface StudentProfile {
+  id: number;
+  firstname: string;
+  lastname: string;
+  dateOfBirth: string | Date;
+  classe: Pick<Classe, "id" | "name">;
+  matricule: string;
+  password: string;
+  "placeOfBirth": string,
+  "gender": "F" | "M",
+  "address"?: string,
+  "city"?: string,
+  "country": string,
+  "primaryLanguage": 'fr' | 'en',
+  "secondaryLanguage": 'fr' | 'en',
+  "entryDiploma": string,
+  "mention": string,
+  "yearOfObtention": string,
+  "countryOfObtention": string,
+  "obtainingInstitution": string,
+  "acceptedCgu": false
+}
+
 export type {
   UserType,
   UserResponse,
@@ -55,4 +78,5 @@ export type {
   StudentBaseResponse,
   RegistrationResponse,
   Registration,
+  StudentProfile
 };
