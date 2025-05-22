@@ -1,16 +1,20 @@
-import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query"
+import { useMutation, useQuery, useQueryClient, UseQueryOptions } from "@tanstack/react-query"
 import { createItem, fetchData, updateItem } from "./api-crud"
 import { Classroom, ClassroomListResponse } from "@/types/classrooms"
+import { cleanQueryParams } from "./hook"
+import { stableSerialize } from "../utils"
 
 const CLASSROOMS_QUERY_KEY = ["classrooms"]
 
-export function useClassrooms(){
+export function useClassrooms(params: Record<string, unknown> = {}, options: Partial<UseQueryOptions<Classroom[]>> = {}){
+  const cleanedParams = cleanQueryParams(params)
   return useQuery({
-    queryKey: CLASSROOMS_QUERY_KEY,
+    queryKey: [CLASSROOMS_QUERY_KEY, stableSerialize(cleanedParams)],
     queryFn: async () => {
-      const res = await fetchData<ClassroomListResponse>("/classrooms")
+      const res = await fetchData<ClassroomListResponse>("/classrooms", cleanedParams)
       return res.items
-    }
+    },
+    ...options
   })
 }
 

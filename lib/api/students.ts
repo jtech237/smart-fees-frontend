@@ -1,9 +1,11 @@
 import { createItem, fetchData, fetchOne } from "./api-crud";
 import snakecaseKeys from "snakecase-keys";
 import { FormValues } from "@/components/students/schemas";
-import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { useMutation, useQuery, useQueryClient, UseQueryOptions } from "@tanstack/react-query";
 import { format } from "date-fns";
 import { RegistrationResponse, StudentBaseResponse, StudentProfile } from "@/types/user";
+import { cleanQueryParams } from "./hook";
+import { stableSerialize } from "../utils";
 
 type PreRegristrationPayload = FormValues;
 type PreRegristrationResponse = {
@@ -40,10 +42,12 @@ export function usePreRegistration() {
   });
 }
 
-export function useStudents() {
+export function useStudents(params: Record<string, unknown> = {}, options: Partial<UseQueryOptions<StudentBaseResponse>> = {}) {
+  const cleanedParams = cleanQueryParams(params);
   return useQuery({
-    queryKey: ["students"],
-    queryFn: () => fetchData<StudentBaseResponse>("/students"),
+    queryKey: ["students", stableSerialize(cleanedParams)],
+    queryFn: () => fetchData<StudentBaseResponse>("/students", cleanedParams),
+    ...options
   });
 }
 

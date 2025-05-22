@@ -18,7 +18,7 @@ export type ClassesQueryParams = {
   orphan?: boolean
 }
 
-export function useClasses(params: ClassesQueryParams = {}, options?: UseQueryOptions<Classe[], Error>){
+export function useClasses(params: ClassesQueryParams = {}, options: Partial<UseQueryOptions<Classe[], Error>> = {}){
   const cleanParams = cleanQueryParams(params)
   const queryKey = [CLASSES_QUERY_KEY, stableSerialize(cleanParams)]
   return useQuery<Classe[], Error>({
