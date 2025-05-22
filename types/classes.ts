@@ -1,4 +1,4 @@
-import { number, string } from "zod"
+
 
 export interface ParentClasse{
   id: number
@@ -19,6 +19,7 @@ export interface RequiredDocument{
   id: number
   name: string
   description?: string
+  required?: boolean
 }
 
 export interface FullClasse extends Classe{

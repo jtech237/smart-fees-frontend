@@ -4,6 +4,7 @@ import { useMutation, useQuery, useQueryClient, UseQueryOptions } from '@tanstac
 import { createItem, deleteItem, fetchData, fetchOne, updateItem } from './api-crud';
 import { stableSerialize } from '../utils';
 import { cleanQueryParams } from './hook';
+import { ClassroomListResponse } from '@/types/classrooms';
 
 const CLASSES_QUERY_KEY = ["classes"]
 
@@ -84,11 +85,23 @@ export function useDeleteClasse() {
   });
 }
 
-export function useClasse(classeId: number){
+export function useClasse(classeId: number, full?: boolean){
   return useQuery({
     queryFn: async () => {
-      return await fetchOne<Classe>("/classes", String(classeId))
+      return await fetchOne<Classe>(full ? "/classes?full=true" : "/classes", String(classeId))
     },
     queryKey: [CLASSES_QUERY_KEY, classeId]
+  })
+}
+
+export function useClasseClassrooms(classeId: number){
+  return useQuery({
+    queryFn: async () => {
+      const res = await fetchData<ClassroomListResponse>(`/classrooms`, { classe: classeId })
+      return res.items
+    },
+    queryKey: ["classes", classeId, "classrooms"],
+    enabled: !!classeId,
+    staleTime: Infinity,
   })
 }
