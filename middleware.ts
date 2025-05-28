@@ -17,7 +17,7 @@ export default auth((req) => {
   }
 
   if (currentPath.startsWith("/students") && role !== "STUDENT") {
-    return NextResponse.redirect(new URL("/", req.url));
+    return NextResponse.redirect(new URL("/students", req.url));
   }
 });
 

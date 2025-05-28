@@ -10,6 +10,14 @@ import {
   DialogTrigger,
 } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import { useClasses } from "@/lib/api/classes";
 import { useClassrooms } from "@/lib/api/classrooms";
 import { useStudents } from "@/lib/api/students";
@@ -29,6 +37,13 @@ const columns: ColumnDef<StudentBase>[] = [
     header: "Nom et prénoms",
     cell: ({ row }) =>
       `${row.original.firstname.toUpperCase()} ${row.original.lastname}`,
+  },
+  {
+    accessorKey: "matricule",
+    header: "Matricule",
+    cell: ({ row }) => (
+      <span className="font-bold">{row.original.matricule}</span>
+    ),
   },
   {
     id: "birthday",
@@ -54,19 +69,41 @@ export default function ManageStudent() {
 
   const [enableFilter, setEnableFilter] = useState(false);
 
-  const { data: studentsResponse, isLoading, refetch, error } = useStudents();
+  const {
+    data: studentsResponse,
+    isLoading,
+    refetch,
+    error,
+  } = useStudents(
+    {
+      academic_year: selectedYear,
+      search: debounceSearch,
+      limit: pageSize,
+      offset: page * pageSize,
+      classe: selectedClass,
+    },
+    { staleTime: Infinity }
+  );
   const {
     data: classesResponse,
     isLoading: isLoadingClasse,
     refetch: refetchClasses,
     error: fetchClasseError,
-  } = useClasses();
+  } = useClasses({ orphan: true });
   const {
     data: classroomsResponse,
     isLoading: isLoadingClassrooms,
     refetch: refetchClassrooms,
     error: fetchClassroomsError,
-  } = useClassrooms({}, {});
+  } = useClassrooms(
+    {
+      classe: selectedClass,
+    },
+    {
+      enabled: !!selectedClass,
+      staleTime: Infinity,
+    }
+  );
 
   const students = studentsResponse?.items || [];
   const total = studentsResponse?.count || 0;
@@ -88,6 +125,13 @@ export default function ManageStudent() {
     setSelectedClassroom(newClassroomId);
     setPage(0); // réinitialise la page à 0 en cas de nouvelle recherche
   }, []);
+
+  const handleResetFilters = useCallback(() => {
+    setSelectedYear(defaultYear);
+    setSelectedClass(undefined);
+    setSelectedClassroom(undefined);
+    setPage(0);
+  }, [defaultYear]);
 
   return (
     <div>
@@ -155,52 +199,132 @@ export default function ManageStudent() {
           </div>
 
           {enableFilter && (
-            <div>
-              <div className="mb-4">
-                <label htmlFor="academic-year">Année académique</label>
-                <select
-                  id="academic-year"
-                  value={selectedYear}
-                  onChange={(e) => setSelectedYear(e.target.value)}
+            <div className="w-72 space-y-4 p-4 bg-card rounded-lg shadow">
+              <div className="flex justify-between items-center">
+                <h3 className="font-medium">Filtres</h3>
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  onClick={handleResetFilters}
+                  className="text-destructive hover:text-destructive/80"
                 >
-                  {academicYears.map((year) => (
-                    <option key={year} value={year}>
-                      {year}
-                    </option>
-                  ))}
-                </select>
+                  Réinitialiser
+                </Button>
               </div>
 
-              <div className="mb-4">
-                <label htmlFor="class">Classe</label>
-                <select
-                  id="class"
-                  value={selectedClass}
-                  onChange={(e) => handleClassChange(Number(e.target.value))}
-                >
-                  {classesResponse?.map((classe) => (
-                    <option key={classe.id} value={classe.id}>
-                      {classe.name}
-                    </option>
-                  ))}
-                </select>
+              {/* Annee academique */}
+              <div className="space-y-2">
+                <Label className="text-sm font-medium">Annee academique</Label>
+                <Select value={selectedYear} onValueChange={setSelectedYear}>
+                  <SelectTrigger>
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {academicYears.map((year) => (
+                      <SelectItem key={year} value={year}>
+                        {year}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
               </div>
 
-              <div className="mb-4">
-                <label htmlFor="classroom">Salle de classe</label>
-                <select
-                  id="classroom"
-                  value={selectedClassroom}
-                  onChange={(e) =>
-                    handleClassroomChange(Number(e.target.value))
-                  }
-                >
-                  {classroomsResponse?.map((classroom) => (
-                    <option key={classroom.id} value={classroom.id}>
-                      {classroom.name}
-                    </option>
-                  ))}
-                </select>
+              {/* Selection de classe */}
+              <div className="space-y-2">
+                <Label className="text-sm font-medium">Classe</Label>
+                {fetchClasseError ? (
+                  <div className="space-y-2 text-destructive">
+                    <p className="text-sm">Erreur de chargement des classes</p>
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={() => refetchClasses()}
+                    >
+                      Réessayer
+                    </Button>
+                  </div>
+                ) : (
+                  <Select
+                    value={selectedClass?.toString() || ""}
+                    onValueChange={(value) => handleClassChange(Number(value))}
+                    disabled={isLoadingClasse}
+                  >
+                    <SelectTrigger>
+                      <SelectValue placeholder="Sélectionnez une classe" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {isLoadingClasse ? (
+                        <SelectItem value="loading" disabled>
+                          Chargement...
+                        </SelectItem>
+                      ) : (
+                        classesResponse?.map((classe) => (
+                          <SelectItem
+                            key={classe.id}
+                            value={classe.id.toString()}
+                          >
+                            {classe.name}
+                          </SelectItem>
+                        ))
+                      )}
+                    </SelectContent>
+                  </Select>
+                )}
+              </div>
+
+              {/* Sélection de salle */}
+              <div className="space-y-2">
+                <label className="text-sm font-medium">Salle de classe</label>
+                {fetchClassroomsError ? (
+                  <div className="space-y-2 text-destructive">
+                    <p className="text-sm">Erreur de chargement des salles</p>
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={() => refetchClassrooms()}
+                    >
+                      Réessayer
+                    </Button>
+                  </div>
+                ) : (
+                  <Select
+                    value={selectedClassroom?.toString() || ""}
+                    onValueChange={(value) =>
+                      handleClassroomChange(Number(value))
+                    }
+                    disabled={!selectedClass || isLoadingClassrooms}
+                  >
+                    <SelectTrigger>
+                      <SelectValue
+                        placeholder={
+                          !selectedClass
+                            ? "Choisissez d'abord une classe"
+                            : "Sélectionnez une salle"
+                        }
+                      />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {isLoadingClassrooms ? (
+                        <SelectItem value="loading" disabled>
+                          Chargement...
+                        </SelectItem>
+                      ) : classroomsResponse?.length ? (
+                        classroomsResponse.map((classroom) => (
+                          <SelectItem
+                            key={classroom.id}
+                            value={classroom.id.toString()}
+                          >
+                            {classroom.name}
+                          </SelectItem>
+                        ))
+                      ) : (
+                        <SelectItem value="none" disabled>
+                          Aucune salle disponible
+                        </SelectItem>
+                      )}
+                    </SelectContent>
+                  </Select>
+                )}
               </div>
             </div>
           )}

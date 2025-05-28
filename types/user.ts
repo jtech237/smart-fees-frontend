@@ -9,6 +9,7 @@ interface UserType {
   refreshToken: string;
   role: string;
   expire_in: number;
+  personalId?: number
 }
 
 interface UserResponse {
@@ -20,6 +21,7 @@ interface UserResponse {
   access: string;
   refresh: string;
   expires: number;
+  profile_id?: number
 }
 
 interface StudentBase {
@@ -38,7 +40,7 @@ interface StudentBaseResponse {
 
 interface Registration {
   id: number;
-  status: string;
+  status: "PRE" | "DOC" | "PAY" | "REG";
   student: StudentBase;
   createdAt: string | Date;
 }

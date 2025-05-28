@@ -52,7 +52,7 @@ const RegisterForm = () => {
     goToStep,
     handleNext: handleStepperNext,
     handlePrev,
-    validatedSteps
+    validatedSteps,
   } = useStepper(steps, methods.trigger);
 
   const { mutateAsync, isPending, isSuccess, data } = usePreRegistration();
@@ -123,7 +123,7 @@ const RegisterForm = () => {
         </div>
 
         <div className="flex justify-between mt-6">
-          {currentStep !== 0 && (
+          {currentStep !== 0 && !isSuccess && (
             <Button
               type="button"
               variant="ghost"
@@ -134,13 +134,15 @@ const RegisterForm = () => {
             </Button>
           )}
 
-          <Button
-            onClick={handleNext}
-            disabled={isPending}
-            className={cn(currentStep === 0 && "ms-auto")}
-          >
-            {currentStep === steps.length - 1 ? "Terminer" : "Suivant"}
-          </Button>
+          {!isSuccess && (
+            <Button
+              onClick={handleNext}
+              disabled={isPending}
+              className={cn(currentStep === 0 && "ms-auto")}
+            >
+              {currentStep === steps.length - 1 ? "Terminer" : "Suivant"}
+            </Button>
+          )}
         </div>
       </form>
     </Form>

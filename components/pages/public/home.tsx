@@ -20,6 +20,7 @@ import { useLocalStorage } from "usehooks-ts";
 import { FeesCheckForm } from "@/components/students/FeesCheckForm";
 import { IdCheckForm } from "@/components/students/IdCheckForm";
 import { Skeleton } from "@/components/ui/skeleton";
+import { signOut, useSession } from "next-auth/react";
 
 const LANGUAGES = [
   {
@@ -54,6 +55,14 @@ export default function HomePage() {
   const [isNewStudent, setIsNewStudent] = useState(true);
   const [formIsDirty, setFormIsDirty] = useState(false);
   const [formData, setFormData] = useState<FormValues | undefined>(undefined);
+
+
+    const {data: session, status} = useSession()
+    useEffect(() => {
+      if(status!=="authenticated" || !session?.user){
+        signOut({redirect: false})
+      }
+    }, [session?.user, status])
 
   useBeforeUnload(formIsDirty);
 

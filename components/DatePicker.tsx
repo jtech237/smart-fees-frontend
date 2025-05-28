@@ -34,9 +34,11 @@ export const DatePicker = React.forwardRef<
         selected={value}
         onSelect={onChange}
         initialFocus
-        disabled={(date) => date > new Date()}
+        disabled={(date) => date > new Date(2024)}
+        fromYear={1990}
+        toYear={new Date().getFullYear()}
         captionLayout="dropdown-buttons"
-        defaultMonth={new Date(2024)}
+        defaultMonth={value || new Date(2024)}
       />
     </PopoverContent>
   </Popover>

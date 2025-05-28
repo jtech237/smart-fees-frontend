@@ -1,4 +1,4 @@
-import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { useMutation, useQuery, useQueryClient, UseQueryOptions } from "@tanstack/react-query";
 import { getCurrentAcademicYear } from "../utils";
 import { createItem, deleteItem, fetchData, patchItem } from "./api-crud";
 import {
@@ -120,4 +120,16 @@ export function useDeleteFee() {
       queryClient.invalidateQueries({ queryKey: FEES_QUERY_KEY });
     },
   });
+}
+
+type RequiredFees = Omit<Fee, "dueDate"|"classe"|"feesType"|"academicYear" | "amount" > & {
+  deadline: string | Date;
+  amount: number;
+}
+export function useRequiredFees(classeId: number, options: Partial<UseQueryOptions<RequiredFees[]>>){
+  return useQuery({
+    queryKey: [FEES_QUERY_KEY, classeId],
+    queryFn: () =>fetchData<RequiredFees[]>(`/classes/${classeId}/required-fees`),
+    ...options
+  })
 }

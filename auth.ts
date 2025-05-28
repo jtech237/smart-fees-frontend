@@ -59,6 +59,7 @@ async function fetchUser(from: string | URL, body: Credentials) {
 }
 
 function createUser(user: UserResponse) {
+  console.log(user)
   const objectUser: UserType = {
     id: user.id,
     name: user.name,
@@ -67,7 +68,8 @@ function createUser(user: UserResponse) {
     role: user.role,
     accessToken: user.access,
     refreshToken: user.refresh,
-    expire_in: user.expires
+    expire_in: user.expires,
+    personalId: user.profile_id || user.id
   };
 
   return objectUser;
@@ -124,6 +126,7 @@ const authOptions = {
         token.name = user.name;
         token.username = user.username;
         token.id = user.id as unknown as number;
+        token.personalId = user.personalId
 
         return token;
       }
@@ -161,6 +164,7 @@ const authOptions = {
         accessToken: token.accessToken,
         refreshToken: token.refreshToken,
         emailVerified: null,
+        personalId: token.personalId
       };
 
       return session;

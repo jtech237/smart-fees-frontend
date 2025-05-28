@@ -27,13 +27,19 @@ export const DetailedClasse: React.FC<{
     data: documents,
     isLoading: isLoadingDocuments,
     error: documentsError,
-  } = useRequiredDocuments({ classeId: id });
+  } = useRequiredDocuments(
+    { classeId: id },
+    { enabled: hasRequestedDocuments }
+  );
 
   const {
     data: classrooms,
     isLoading: isLoadingClassrooms,
     error: classroomsError,
-  } = useClasseClassrooms(id);
+  } = useClasseClassrooms(id, {
+    staleTime: Infinity,
+    enabled: hasRequestedClassrooms,
+  });
 
   useEffect(() => {
     if (!isLoading && classe) {

@@ -1,11 +1,21 @@
 import { createItem, fetchData, fetchOne } from "./api-crud";
 import snakecaseKeys from "snakecase-keys";
 import { FormValues } from "@/components/students/schemas";
-import { useMutation, useQuery, useQueryClient, UseQueryOptions } from "@tanstack/react-query";
+import {
+  useMutation,
+  useQuery,
+  useQueryClient,
+  UseQueryOptions,
+} from "@tanstack/react-query";
 import { format } from "date-fns";
-import { RegistrationResponse, StudentBaseResponse, StudentProfile } from "@/types/user";
+import {
+  RegistrationResponse,
+  StudentBaseResponse,
+  StudentProfile,
+} from "@/types/user";
 import { cleanQueryParams } from "./hook";
 import { stableSerialize } from "../utils";
+import api from ".";
 
 type PreRegristrationPayload = FormValues;
 type PreRegristrationResponse = {
@@ -42,31 +52,62 @@ export function usePreRegistration() {
   });
 }
 
-export function useStudents(params: Record<string, unknown> = {}, options: Partial<UseQueryOptions<StudentBaseResponse>> = {}) {
+export function useStudents(
+  params: Record<string, unknown> = {},
+  options: Partial<UseQueryOptions<StudentBaseResponse>> = {}
+) {
   const cleanedParams = cleanQueryParams(params);
   return useQuery({
     queryKey: ["students", stableSerialize(cleanedParams)],
     queryFn: () => fetchData<StudentBaseResponse>("/students", cleanedParams),
-    ...options
+    ...options,
   });
 }
 
-export function usePreRegistrations() {
+export function usePreRegistrations(
+  params: Record<string, unknown> = {},
+  options: Partial<UseQueryOptions<RegistrationResponse>> = {}
+) {
+  const cleanedParams = cleanQueryParams(params);
   return useQuery({
-    queryKey: [["students"], "pre-registrations"],
+    queryKey: [
+      ["students"],
+      "pre-registrations",
+      stableSerialize(cleanedParams),
+    ],
     queryFn: () =>
-      fetchData<RegistrationResponse>("/students/pre-registrations"),
+      fetchData<RegistrationResponse>(
+        "/students/pre-registrations",
+        cleanedParams
+      ),
+    ...options,
   });
 }
 
-export function useStudent(id: string) {
+export function useStudent(
+  id: string,
+  options: Partial<UseQueryOptions<StudentProfile>> = {}
+) {
   return useQuery({
     queryKey: ["student"],
-    queryFn: () =>
-      fetchOne<StudentProfile>("/students", id),
+    queryFn: () => fetchOne<StudentProfile>("/students", id),
     retry: false,
     refetchOnWindowFocus: false,
     refetchOnReconnect: false,
     refetchOnMount: false,
+    ...options,
+  });
+}
+
+export async function payFee({
+  feeId,
+  method,
+}: {
+  feeId: number;
+  method: string;
+}) {
+  return api.post("/api/payments/", {
+    fee_id: feeId,
+    method_id: method,
   });
 }

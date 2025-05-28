@@ -10,6 +10,7 @@ export interface Fee{
 
   classe: Pick<Classe, 'id' | 'name'>
   feesType: FeeType
+  required?: boolean
 }
 
 export interface FullFee extends Fee{

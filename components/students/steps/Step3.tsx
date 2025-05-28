@@ -13,9 +13,11 @@ export const Step3 = React.memo(() => {
   const [cycleId] = useWatch({ control, name: ["cycle"] });
   const [classeId] = useWatch({control, name: ['classe']})
 
-  const { data: cycles, } = useCycles();
+  const { data: cycles, } = useCycles({
+    staleTime: Infinity
+  });
   const { data: classes,  } = useClasses(
-    {cycle_id: Number(cycleId), orphan: true},
+    {cycle_id: Number(cycleId), orphan: true},{enabled: !!cycleId}
   );
 
   const classOptions = useMemo(() =>
@@ -25,7 +27,7 @@ export const Step3 = React.memo(() => {
 
    const { data: requiredDocs = [] } = useRequiredDocuments({
       classeId: classeId,
-    });
+    }, {enabled: !!classeId});
 
   return (
     <div className="grid md:grid-cols-2 md:grid-rows-2 gap-x-4 gap-y-2">

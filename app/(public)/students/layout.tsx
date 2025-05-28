@@ -1,8 +1,27 @@
-import { PropsWithChildren } from "react";
+"use client";
+import { PropsWithChildren, useEffect } from "react";
 import Image from "next/image";
 import Link from "next/link";
+import { signOut, useSession } from "next-auth/react";
+import { Loader2 } from "lucide-react";
 
 export default function StudentLayout({ children }: PropsWithChildren) {
+  const { data: session, status } = useSession();
+
+  useEffect(() => {
+    if (session?.user && session.user.role !== "STUDENT") {
+      signOut({ callbackUrl: "/auth/login?next=/students" });
+    }
+  }, [session, status]);
+
+  if (status === "loading") {
+    return (
+      <div className="flex justify-center items-center h-screen">
+        <Loader2 className=" h-12 w-12 animate-spin text-blue-500" />
+      </div>
+    );
+  }
+
   return (
     <>
       <header>
@@ -13,13 +32,13 @@ export default function StudentLayout({ children }: PropsWithChildren) {
               className="flex items-center space-x-3 rtl:space-x-reverse"
             >
               <div className="relative w-10 h-10">
-              <Image
-                src="/assets/images/logos/icon.webp"
-                alt="Smart Fees Logo"
-                fill
-                priority
-                className="object-contain"
-              />
+                <Image
+                  src="/assets/images/logos/icon.webp"
+                  alt="Smart Fees Logo"
+                  fill
+                  priority
+                  className="object-contain"
+                />
               </div>
               <span className="self-center text-2xl font-semibold whitespace-nowrap dark:text-white">
                 SMART-FEES
@@ -42,14 +61,17 @@ export default function StudentLayout({ children }: PropsWithChildren) {
               >
                 <path
                   stroke="currentColor"
-                  stroke-linecap="round"
-                  stroke-linejoin="round"
-                  stroke-width="2"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth="2"
                   d="M1 1h15M1 7h15M1 13h15"
                 />
               </svg>
             </button>
-            <div className="hidden w-full md:block md:w-auto" id="navbar-default">
+            <div
+              className="hidden w-full md:block md:w-auto"
+              id="navbar-default"
+            >
               <ul className="font-medium flex flex-col p-4 md:p-0 mt-4 border border-gray-100 rounded-lg bg-gray-50 md:flex-row md:space-x-8 rtl:space-x-reverse md:mt-0 md:border-0 md:bg-white dark:bg-gray-800 md:dark:bg-gray-900 dark:border-gray-700">
                 <li>
                   <Link
@@ -62,7 +84,7 @@ export default function StudentLayout({ children }: PropsWithChildren) {
                 </li>
                 <li>
                   <Link
-                    href="#"
+                    href="/student/scolarity"
                     className="block py-2 px-3 text-gray-900 rounded-sm hover:bg-gray-100 md:hover:bg-transparent md:border-0 md:hover:text-blue-700 md:p-0 dark:text-white md:dark:hover:text-blue-500 dark:hover:bg-gray-700 dark:hover:text-white md:dark:hover:bg-transparent"
                   >
                     Ma scolarité
@@ -70,7 +92,7 @@ export default function StudentLayout({ children }: PropsWithChildren) {
                 </li>
                 <li>
                   <Link
-                    href="#"
+                    href="/students/payment"
                     className="block py-2 px-3 text-gray-900 rounded-sm hover:bg-gray-100 md:hover:bg-transparent md:border-0 md:hover:text-blue-700 md:p-0 dark:text-white md:dark:hover:text-blue-500 dark:hover:bg-gray-700 dark:hover:text-white md:dark:hover:bg-transparent"
                   >
                     Mes paiements

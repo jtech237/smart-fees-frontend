@@ -81,7 +81,6 @@ export const LoginForm = () => {
           handleAuthError(errorMessage);
           return;
         }
-        toast.success("Connexion réussie");
       } catch (error) {
         handleAuthError("Erreur inattendue");
         console.error("Login error:", error);
@@ -97,7 +96,9 @@ export const LoginForm = () => {
     if (status === "authenticated") {
       if (session?.user.role !== "STUDENT") {
         signOut({ redirect: false });
+        toast.error("Connectez-vous a l'espace admin")
       } else {
+        toast.success("Connexion réussie");
         router.push("/students");
       }
     }

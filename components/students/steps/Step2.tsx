@@ -18,12 +18,11 @@ import {
   SelectItem,
 } from "@/components/ui/select";
 import { Input } from "@/components/ui/input";
-import { DatePicker } from "@/components/DatePicker";
+import { DateInput } from "@/components/DateField";
 
 export const Step2 = React.memo(() => {
   const {
     control,
-    formState: { errors },
   } = useFormContext<FormValues>();
   /* const LANG_OPTIONS = useMemo(
     () => [
@@ -106,11 +105,15 @@ export const Step2 = React.memo(() => {
             render={({ field }) => (
               <FormItem className="flex flex-col mt-2">
                 <FormLabel>Date de naissance</FormLabel>
-                <DatePicker
+                <DateInput
+                  value={field.value}
+                  onChange={(date) => field.onChange(date)}
+                />
+                {/* <DatePicker
                   value={field.value}
                   onChange={(date) => field.onChange(date)}
                   error={!!errors.birthday}
-                />
+                /> */}
                 <FormMessage />
               </FormItem>
             )}
