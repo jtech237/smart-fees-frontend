@@ -17,10 +17,11 @@ import { useStudent } from "@/lib/api/students";
 import { Info, Loader2, Terminal } from "lucide-react";
 import { signOut, useSession } from "next-auth/react";
 import Link from "next/link";
-import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import Image from "next/image";
-import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { useQueryClient } from "@tanstack/react-query";
+import { StudentUploadDoc } from "@/components/pages/public/StudentUploadDoc";
+import { StudentPayDialog } from "@/components/pages/public/StudentPayDialog";
 
 export default function StudentDashboard() {
   const [uploadingDoc, setUploadingDoc] = useState<number | null>(null);
@@ -31,7 +32,6 @@ export default function StudentDashboard() {
     "method" | "number" | "confirm"
   >("method");
   const [selectedMethod, setSelectedMethod] = useState("");
-  const router = useRouter();
   const { data: session, status } = useSession();
   const {
     data: student,
@@ -190,32 +190,7 @@ export default function StudentDashboard() {
                         )}
                       </div>
                       {!isSubmitted && (
-                        <Dialog>
-                          <DialogTrigger asChild>
-                            <Button size={"sm"}>Envoyer</Button>
-                          </DialogTrigger>
-                          <DialogContent>
-                            <DialogHeader>
-                              <DialogTitle>
-                                Soumission de {`${doc.name}`}
-                              </DialogTitle>
-                            </DialogHeader>
-                            <DialogDescription asChild>
-                              <div className="space-x-4">
-                                <Label htmlFor="doc-upload">
-                                  Importez votre document au format img, jpg ou
-                                  png
-                                </Label>
-                                <Input
-                                  type="file"
-                                  accept="images/*"
-                                  id="doc-upload"
-                                />
-                                <Button>Envoyer</Button>
-                              </div>
-                            </DialogDescription>
-                          </DialogContent>
-                        </Dialog>
+                        <StudentUploadDoc doc={doc}/>
                       )}
                     </div>
                   );
@@ -270,102 +245,7 @@ export default function StudentDashboard() {
                         </p>
                       )}
                     </div>
-                    <Dialog>
-                      <DialogTrigger asChild>
-                        <Button size="sm">Payer maintenant</Button>
-                      </DialogTrigger>
-                      <DialogContent>
-                        <DialogHeader>
-                          <DialogTitle>
-                            Paiements des frais : {`${fee.name}`}
-                          </DialogTitle>
-                        </DialogHeader>
-                        <DialogDescription asChild>
-                          <div>
-                            {paymentStep === "method" && (
-                              <div className="space-y-4">
-                                <Button
-                                  variant="outline"
-                                  className="h-24 w-full flex flex-col gap-2"
-                                  onClick={() => {
-                                    setSelectedMethod("MTN");
-                                    setPaymentStep("number");
-                                  }}
-                                >
-                                  <Image
-                                    src="/assets/images/momo-logo.webp"
-                                    alt="MTN Mobile Money"
-                                    height={40}
-                                    width={80}
-                                  />
-                                  <span>MTN Mobile Money</span>
-                                </Button>
-
-                                <Button
-                                  variant="outline"
-                                  className="h-24 w-full flex flex-col gap-2"
-                                  onClick={() => {
-                                    setSelectedMethod("Orange");
-                                    setPaymentStep("number");
-                                  }}
-                                >
-                                  <Image
-                                    src="/assets/images/om-logo.png"
-                                    width={80}
-                                    height={40}
-                                    alt="Orange Money"
-                                  />
-                                  <span>Orange Money</span>
-                                </Button>
-                              </div>
-                            )}
-
-                            {paymentStep === "number" && (
-                              <div className="space-y-4">
-                                <Input
-                                  placeholder="Numéro de téléphone"
-                                  value={phoneNumber}
-                                  onChange={(e) =>
-                                    setPhoneNumber(e.target.value)
-                                  }
-                                  type="tel"
-                                />
-                                <Button
-                                  className="w-full"
-                                  onClick={() => {
-                                    setPaymentStep("confirm");
-                                    // Simulation USSD
-                                    setTimeout(() => {
-                                      setUssdCode(
-                                        `${selectedMethod === "MTN" ? "*126*1" : "#150*1"}*${fee.amount}#`
-                                      );
-                                      simulatePayment().then(() => {
-                                        setTimeout(
-                                          () => setPaymentFee(null),
-                                          2000
-                                        );
-                                      });
-                                    }, 1000);
-                                  }}
-                                >
-                                  Confirmer
-                                </Button>
-                              </div>
-                            )}
-
-                            {paymentStep === "confirm" && (
-                              <div className="text-center space-y-4">
-                                <Loader2 className="mx-auto h-8 w-8 animate-spin" />
-                                <p>Composez sur votre téléphone :</p>
-                                <div className="text-xl font-mono bg-gray-100 p-4 rounded">
-                                  {ussdCode}
-                                </div>
-                              </div>
-                            )}
-                          </div>
-                        </DialogDescription>
-                      </DialogContent>
-                    </Dialog>
+                    <StudentPayDialog fee={fee}/>
                   </div>
                 ))}
               </div>

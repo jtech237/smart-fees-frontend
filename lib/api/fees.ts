@@ -122,7 +122,7 @@ export function useDeleteFee() {
   });
 }
 
-type RequiredFees = Omit<Fee, "dueDate"|"classe"|"feesType"|"academicYear" | "amount" > & {
+export type RequiredFees = Omit<Fee, "dueDate"|"classe"|"feesType"|"academicYear" | "amount" > & {
   deadline: string | Date;
   amount: number;
 }

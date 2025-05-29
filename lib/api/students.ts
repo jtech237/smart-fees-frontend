@@ -99,15 +99,43 @@ export function useStudent(
   });
 }
 
-export async function payFee({
+async function payFee({
   feeId,
   method,
 }: {
   feeId: number;
-  method: string;
+  method: number;
 }) {
-  return api.post("/api/payments/", {
+  return await api.post<{datail: string}>("/payments", {
     fee_id: feeId,
     method_id: method,
   });
+}
+
+export function useCreatePayment(){
+  return useMutation({
+    mutationFn: payFee,
+  })
+}
+
+
+async function uploadDoc(data: {
+  file: File,
+  doc_type_id: number
+}){
+  if(!window){
+    throw new Error("Not server")
+  }
+  const formData = new FormData()
+  formData.append("file", data.file)
+
+  return await api.postForm<{status: boolean}>(`/documents/upload?document_type_id=${data.doc_type_id}`, data)
+}
+
+export function useUploadDoc(){
+  const queryClient = useQueryClient()
+  return useMutation({
+    mutationFn: uploadDoc,
+    onSuccess: () => queryClient.invalidateQueries({queryKey: ["student"]})
+  })
 }

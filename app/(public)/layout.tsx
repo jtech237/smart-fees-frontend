@@ -1,3 +1,4 @@
+import { Toaster } from "@/components/ui/sonner";
 import type { Metadata } from "next";
 
 
@@ -13,6 +14,7 @@ export default function PublicLayout({
 }>) {
   return (
     <>
+    <Toaster  position="top-center" richColors />
       {children}
     </>
   );
