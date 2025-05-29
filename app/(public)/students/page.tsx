@@ -1,37 +1,17 @@
 "use client";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { Button } from "@/components/ui/button";
-import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogHeader,
-  DialogTitle,
-  DialogTrigger,
-} from "@/components/ui/dialog";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
 import { useRequiredDocuments } from "@/lib/api/classes";
 import { useRequiredFees } from "@/lib/api/fees";
 import { useStudent } from "@/lib/api/students";
 import { Info, Loader2, Terminal } from "lucide-react";
 import { signOut, useSession } from "next-auth/react";
 import Link from "next/link";
-import { useEffect, useState } from "react";
-import Image from "next/image";
-import { useQueryClient } from "@tanstack/react-query";
+import { useEffect } from "react";
 import { StudentUploadDoc } from "@/components/pages/public/StudentUploadDoc";
 import { StudentPayDialog } from "@/components/pages/public/StudentPayDialog";
 
 export default function StudentDashboard() {
-  const [uploadingDoc, setUploadingDoc] = useState<number | null>(null);
-  const [paymentFee, setPaymentFee] = useState<any | null>(null);
-  const [phoneNumber, setPhoneNumber] = useState("");
-  const [ussdCode, setUssdCode] = useState("");
-  const [paymentStep, setPaymentStep] = useState<
-    "method" | "number" | "confirm"
-  >("method");
-  const [selectedMethod, setSelectedMethod] = useState("");
   const { data: session, status } = useSession();
   const {
     data: student,
@@ -58,31 +38,10 @@ export default function StudentDashboard() {
     data: requiredFees,
     isLoading: requiredFeesLoading,
     error: requiredFeesError,
-  } = useRequiredFees(Number(student?.classe.id), {
+  } = useRequiredFees(Number(student?.id), {
     enabled: !isLoading,
     staleTime: Infinity,
   });
-
-  const queryClient = useQueryClient()
-
-  const handleDocumentUpload = async (docTypeId: number, file: File) => {
-    try {
-      const formData = new FormData();
-      formData.append("doc_type_id", docTypeId.toString());
-      formData.append("file", file);
-
-      await uploadStudentDocument(formData);
-    } catch (error) {
-      console.error("Upload failed:", error);
-    }
-  };
-
-  const simulatePayment = async () => {
-    // Simulation de paiement
-    return new Promise((resolve) => {
-      setTimeout(() => resolve({ success: true }), 2000);
-    });
-  };
 
   useEffect(() => {
     if (session?.user && session.user.role !== "STUDENT") {
@@ -245,7 +204,7 @@ export default function StudentDashboard() {
                         </p>
                       )}
                     </div>
-                    <StudentPayDialog fee={fee}/>
+                    {!fee.status && (<StudentPayDialog fee={fee}/>)}
                   </div>
                 ))}
               </div>

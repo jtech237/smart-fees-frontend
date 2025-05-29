@@ -125,11 +125,12 @@ export function useDeleteFee() {
 export type RequiredFees = Omit<Fee, "dueDate"|"classe"|"feesType"|"academicYear" | "amount" > & {
   deadline: string | Date;
   amount: number;
+  status: boolean
 }
-export function useRequiredFees(classeId: number, options: Partial<UseQueryOptions<RequiredFees[]>>){
+export function useRequiredFees(studentId: number, options: Partial<UseQueryOptions<RequiredFees[]>>){
   return useQuery({
-    queryKey: [FEES_QUERY_KEY, classeId],
-    queryFn: () =>fetchData<RequiredFees[]>(`/classes/${classeId}/required-fees`),
+    queryKey: [FEES_QUERY_KEY, studentId],
+    queryFn: () =>fetchData<RequiredFees[]>(`/students/${studentId}/required-fees`),
     ...options
   })
 }
