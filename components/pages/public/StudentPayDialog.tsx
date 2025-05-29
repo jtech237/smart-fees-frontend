@@ -8,12 +8,13 @@ import {
   DialogTrigger,
 } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
-import { Fee } from "@/types/fees";
 import { Loader2 } from "lucide-react";
 import Image from "next/image";
 import { useState } from "react";
-import { useCreatePayment } from "@/lib/api/students"; // adapte le path
 import { RequiredFees } from "@/lib/api/fees";
+import { useMutation } from "@tanstack/react-query";
+import api from "@/lib/api/index";
+import { toast } from "sonner";
 
 type MethodOption = {
   id: number;
@@ -31,29 +32,36 @@ export function StudentPayDialog({ fee }: { fee: RequiredFees }) {
   const [selectedMethod, setSelectedMethod] = useState<MethodOption | null>(null);
   const [step, setStep] = useState<"method" | "number" | "confirm">("method");
   const [phone, setPhone] = useState("");
-  const createPayment = useCreatePayment();
+  const [receiptUrl, setReceiptUrl] = useState<string | null>(null)
 
-  const ussdCode = selectedMethod
-    ? `${selectedMethod.ussdPrefix}${fee.amount}#`
-    : "";
+    const paymentMutation = useMutation({
+      mutationFn: () => api.post<{reference: string, receiptUrl: string}>("/payments", {
+        fee_id: fee.id,
+        method_id: selectedMethod?.id,
+        phone_number: phone
+      }),
+      onSuccess(res){
+        setReceiptUrl(res.data.receiptUrl)
+        toast.success("Paiment reuissi")
 
-  const handleConfirm = () => {
-    if (!selectedMethod || !phone) return;
-    setStep("confirm");
-    // appel au back
-    createPayment.mutate(
-      { feeId: fee.id, method: selectedMethod.id },
-      {
-        onSuccess: () => {
-          // tu peux afficher un toast ou fermer la dialog
-        },
-        onError: (err: any) => {
-          console.error(err);
-          // afficher message d'erreur
-        },
+      },
+      onError(error){
+        toast.error(error.message || "Echec du paiment")
+        setStep("method")
       }
-    );
-  };
+    }
+    )
+
+    const handleMethod = (m: MethodOption)=> {
+      setSelectedMethod(m)
+      setStep("number")
+    }
+
+    const handlePay = () => {
+      if(!phone || !selectedMethod) return
+      paymentMutation.mutate()
+    }
+
 
   return (
     <Dialog>
@@ -71,10 +79,7 @@ export function StudentPayDialog({ fee }: { fee: RequiredFees }) {
                 key={m.id}
                 variant="outline"
                 className="h-24 w-full flex flex-col gap-2"
-                onClick={() => {
-                  setSelectedMethod(m);
-                  setStep("number");
-                }}
+                onClick={() => handleMethod(m)}
               >
                 <Image src={m.logo} alt={m.label} width={80} height={40} />
                 <span>{m.label}</span>
@@ -91,36 +96,26 @@ export function StudentPayDialog({ fee }: { fee: RequiredFees }) {
                 />
                 <Button
                   className="w-full"
-                  onClick={handleConfirm}
-                  disabled={createPayment.isPending}
+                  onClick={handlePay}
+                  disabled={paymentMutation.isPending}
                 >
-                  {createPayment.isPending ? (
+                  {paymentMutation.isPending ? (
                     <Loader2 className="animate-spin h-5 w-5 mx-auto" />
                   ) : (
-                    "Confirmer"
+                    "Payer"
                   )}
                 </Button>
               </>
             )}
 
-            {step === "confirm" && (
-              <div className="text-center space-y-4">
-                <p>Compose sur ton téléphone :</p>
-                <div className="text-xl font-mono bg-gray-100 p-4 rounded">
-                  {ussdCode}
-                </div>
-                {createPayment.isError && (
-                  <p className="text-red-500">
-                    Erreur lors du paiement. Réessaie.
-                  </p>
-                )}
-                {createPayment.isSuccess && (
-                  <p className="text-green-600">
-                    Paiement enregistré !
-                  </p>
-                )}
-              </div>
-            )}
+{receiptUrl && (
+          <div className="space-y-4 text-center">
+            <p className="text-green-600">Paiement validé !</p>
+            <a href={receiptUrl} target="_blank" rel="noopener noreferrer">
+              <Button variant="secondary">Voir le reçu / Imprimer</Button>
+            </a>
+          </div>
+        )}
           </div>
         </DialogDescription>
       </DialogContent>
