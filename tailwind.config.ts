@@ -250,6 +250,9 @@ const config: Config = {
         4: "0px 0px 2px rgba(0, 0, 0, 0.2)",
         5: "0px 1px 5px rgba(0, 0, 0, 0.2)",
       },
+      screens: {
+        print: {raw: 'print'}
+      }
   	}
   },
   plugins: [require("tailwindcss-animate")],
