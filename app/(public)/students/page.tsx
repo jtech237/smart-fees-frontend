@@ -115,7 +115,7 @@ export default function StudentDashboard() {
 
           <div className="mt-8">
             <h2 className="text-2xl font-bold mb-4">
-              Documents requis pour l'admission
+              {"Documents requis pour l'admission"}
             </h2>
             {requiredDocsLoading ? (
               <div className="flex justify-center">
@@ -161,7 +161,7 @@ export default function StudentDashboard() {
           {/* Nouvelle section Frais requis */}
           <div className="mt-8">
             <h2 className="text-2xl font-bold mb-4">
-              Frais requis pour l'inscription
+              {"Frais requis pour l'inscription"}
             </h2>
             {requiredFeesLoading ? (
               <div className="flex justify-center">
