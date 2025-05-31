@@ -51,7 +51,7 @@ export default function ReceiptClient() {
   }
 
   return (
-    <div className="h-screen">
+    <div className="h-screen print:bg-white print:text-black print:p-4 print:overflow-hidden print:h-auto print:w-auto">
       {/* <!-- Entete --> */}
       <div className="grid grid-cols-3 items-center">
         <div className="flex flex-col gap-y-3 text-center">

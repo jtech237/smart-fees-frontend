@@ -52,6 +52,7 @@ export function StudentPayDialog({ fee }: { fee: RequiredFees }) {
   const paymentMutation = useMutation({
     mutationFn: async () => {
       if (!state.selectedMethod || !state.phone) {
+        console.log(state)
         throw new Error("Sélection incomplète");
       }
 
@@ -73,6 +74,7 @@ export function StudentPayDialog({ fee }: { fee: RequiredFees }) {
       });
     },
     onError(error) {
+      console.log(error)
       let message = "Erreur inconnue";
 
       if (error instanceof AxiosError) {
@@ -100,7 +102,7 @@ export function StudentPayDialog({ fee }: { fee: RequiredFees }) {
   });
 
   useEffect(() => {
-    let timeout = NodeJS.Timeout;
+    let timeout: NodeJS.Timeout | undefined;
 
     if (state.step === "processing") {
       timeout = setTimeout(() => {
@@ -108,13 +110,15 @@ export function StudentPayDialog({ fee }: { fee: RequiredFees }) {
           paymentMutation.reset();
           setState({
             step: "error",
-            error: "Delai d'attente depasser.",
+            error: "Délai d'attente dépassé.",
           });
         }
       }, 60000);
     }
 
-    return () => clearTimeout(timeout);
+    return () => {
+      if (timeout) clearTimeout(timeout);
+    };
   }, [paymentMutation, state.step]);
   useEffect(() => {
     if (state.error) {
@@ -165,7 +169,7 @@ export function StudentPayDialog({ fee }: { fee: RequiredFees }) {
               <Button
                 disabled={!state.phone}
                 onClick={() => {
-                  setState({ step: "processing" });
+                  setState((s) => ({...s, step: "processing"}));
                   paymentMutation.mutate();
                 }}
               >

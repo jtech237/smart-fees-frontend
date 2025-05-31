@@ -53,7 +53,7 @@ export const routes = {
         },
         {
           label: "Suivi des paiements",
-          route: "/admin/manage/check-paiements"
+          route: "/admin/manage/check-payments"
         }
       ]
     }
