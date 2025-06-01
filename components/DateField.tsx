@@ -6,7 +6,7 @@ import { cn } from "@/lib/utils";
 const parseDateFormat = (format: string) => {
   const sep = format.match(/[^dmy]/)?.[0] || "/";
   const parts = format.split(new RegExp(`[${sep}]`)).map((part) => {
-    if (part === "dd" || part === "mm" || part === "yyyy") return part;
+    if (part === "dd" || part === "MM" || part === "yyyy") return part;
     throw new Error(`Invalid date format part: ${part}`);
   });
   return { parts, separator: sep };
@@ -23,7 +23,7 @@ export interface DateInputProps
 }
 
 const DateInput = React.forwardRef<HTMLInputElement, DateInputProps>(
-  ({ value, onChange, format = "dd/mm/yyyy", className, ...props }, ref) => {
+  ({ value, onChange, format = "dd/MM/yyyy", className, ...props }, ref) => {
     const { parts, separator } = parseDateFormat(format);
     const [rawValue, setRawValue] = useState("");
     const [isTyping, setIsTyping] = useState(false);

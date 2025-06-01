@@ -1,8 +1,9 @@
-import { createItem, fetchData, fetchOne } from "./api-crud";
+import { createItem, fetchData, fetchOne, updateItem } from "./api-crud";
 import snakecaseKeys from "snakecase-keys";
-import { FormValues } from "@/components/students/schemas";
+import { FormValues, step1Schema, step2Schema, step3Schema } from "@/components/students/schemas";
 import {
   useMutation,
+  UseMutationOptions,
   useQuery,
   useQueryClient,
   UseQueryOptions,
@@ -16,6 +17,8 @@ import {
 import { cleanQueryParams } from "./hook";
 import { stableSerialize } from "../utils";
 import api from ".";
+import { ToSnakeCaseObject } from "@/types";
+import { z } from "zod";
 
 type PreRegristrationPayload = FormValues;
 type PreRegristrationResponse = {
@@ -138,4 +141,56 @@ export function useUploadDoc(){
     mutationFn: uploadDoc,
     onSuccess: () => queryClient.invalidateQueries({queryKey: ["student"]})
   })
+}
+
+export const formSchema = step1Schema.merge(step2Schema).merge(step3Schema)
+export type StudentFormValues = z.infer<typeof formSchema>
+export type StudentCreatePayload = ToSnakeCaseObject<StudentFormValues>
+export type StudentUpdatePayload = Partial<StudentCreatePayload>
+
+export async function createStudentFc(data: StudentCreatePayload){
+  const body = {
+    ...data,
+    birthday: format(new Date(data.birthday), "yyyy-MM-dd"),
+  };
+
+  return await createItem<StudentBaseResponse>("/students", body)
+}
+
+export function useCreateStudent(){
+  const queryClient = useQueryClient()
+  return useMutation({
+    mutationFn: createStudentFc,
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["students"] });
+      queryClient.invalidateQueries({
+        queryKey: ["students", "pre-registrations"],
+      });
+    },
+  })
+}
+
+async function updateStudentFn({
+  id,
+  data,
+}: {
+  id: number;
+  data: StudentUpdatePayload;
+}) {
+  const cleanedData = cleanQueryParams(data || {});
+  return await updateItem<StudentBaseResponse>("/students", id, cleanedData);
+}
+
+export function useUpdateStudent() {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: updateStudentFn,
+    onSuccess: (_res, variables) => {
+      // Invalide la donnée du student mis à jour ainsi que la liste
+      queryClient.invalidateQueries({
+        queryKey: ["student", variables.id.toString()],
+      });
+      queryClient.invalidateQueries({ queryKey: ["students"] });
+    },
+  });
 }

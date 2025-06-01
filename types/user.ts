@@ -56,6 +56,10 @@ interface StudentProfile {
   lastname: string;
   dateOfBirth: string | Date;
   classe: Pick<Classe, "id" | "name">;
+  cycle: {
+    id: number,
+    name: string
+  };
   matricule: string;
   password: string;
   "placeOfBirth": string,
@@ -72,6 +76,10 @@ interface StudentProfile {
   "obtainingInstitution": string,
   "acceptedCgu": false
 }
+
+// interface StudentCreatePayload extends Omit<StudentProfile, "acceptedCgu" | "classe" | "password">{
+//   classe: number
+// }
 
 export type {
   UserType,

@@ -47,7 +47,7 @@ export interface Payment {
   method: string;
   transactionId?: string | null;
   status: "PEN" | "COM" | "FAI";
-  created_at: string;
+  createdAt: string;
   // Si vous voulez aussi exposer academic_year (venant de payment.fee.academic_year),
   // vous pouvez l’ajouter ici en tant que string.
   academicYear?: string;

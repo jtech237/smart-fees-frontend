@@ -166,7 +166,7 @@ export default function DashboardPaymentsPage() {
       {
         accessorKey: "transaction_id",
         header: "N°Transaction",
-        cell: ({ row }) => row.original.transaction_id || "—",
+        cell: ({ row }) => row.original.transactionId || "—",
       },
       {
         accessorKey: "status",
@@ -174,18 +174,18 @@ export default function DashboardPaymentsPage() {
         cell: ({ row }) => {
           const code = row.original.status;
           const mapLabel: Record<string, string> = {
-            PEN: "En attente",
-            COM: "Complété",
-            FAI: "Échoué",
+            pen: "En attente",
+            com: "Complété",
+            fai: "Échoué",
           };
           const label = mapLabel[code] || code;
 
           // Badge coloré selon le statut
           const colorClass = {
-            PEN: "bg-yellow-100 text-yellow-800",
-            COM: "bg-green-100 text-green-800",
-            FAI: "bg-red-100 text-red-800",
-          }[code as "PEN" | "COM" | "FAI"];
+            pen: "bg-yellow-100 text-yellow-800",
+            com: "bg-green-100 text-green-800",
+            fai: "bg-red-100 text-red-800",
+          }[code as "pen" | "com" | "fai"];
 
           return (
             <span
@@ -197,10 +197,10 @@ export default function DashboardPaymentsPage() {
         },
       },
       {
-        accessorKey: "created_at",
+        accessorKey: "createdAt",
         header: "Date Création",
         cell: ({ row }) =>
-          new Date(row.original.created_at).toLocaleDateString("fr-FR"),
+          new Date(row.original.createdAt).toLocaleDateString("fr-FR"),
       },
     ],
     []
@@ -253,7 +253,7 @@ export default function DashboardPaymentsPage() {
             <p>Chargement...</p>
           ) : statsData ? (
             <div className="grid grid-cols-1 gap-4">
-              {["com", "pen", "fai"].map((statKey, idx) => {
+              {["com", "pen", "fai"].map((statKey) => {
                 const label =
                   statKey === "com"
                     ? "Paiements complétés"

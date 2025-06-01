@@ -1,4 +1,4 @@
-"use client";
+"use client"
 import DataTable from "@/components/data-table";
 import { Button } from "@/components/ui/button";
 import {
@@ -52,7 +52,7 @@ const columns: ColumnDef<StudentBase>[] = [
   },
 ];
 
-export default function ManageStudent() {
+export default function ManageStudentPage() {
   const defaultYear = getCurrentAcademicYear();
   const academicYears = generateAcademicYears(5);
 
@@ -67,6 +67,7 @@ export default function ManageStudent() {
   const [page, setPage] = useState(0);
   const [pageSize, setPageSize] = useState(10);
 
+  // Filter panel visibility
   const [enableFilter, setEnableFilter] = useState(false);
 
   const {
@@ -117,13 +118,21 @@ export default function ManageStudent() {
   );
 
   const handleClassChange = useCallback((newClassId: number) => {
+    setPage(0); // reset page on filter change
+    if(isNaN(newClassId)){
+      setSelectedClass(undefined)
+      return
+    }
     setSelectedClass(newClassId);
-    setPage(0); // réinitialise la page à 0 en cas de nouvelle recherche
   }, []);
 
   const handleClassroomChange = useCallback((newClassroomId: number) => {
+    setPage(0);
+    if(isNaN(newClassroomId)){
+      setSelectedClass(undefined)
+      return
+    }
     setSelectedClassroom(newClassroomId);
-    setPage(0); // réinitialise la page à 0 en cas de nouvelle recherche
   }, []);
 
   const handleResetFilters = useCallback(() => {
@@ -131,205 +140,204 @@ export default function ManageStudent() {
     setSelectedClass(undefined);
     setSelectedClassroom(undefined);
     setPage(0);
+    setSearch("");
   }, [defaultYear]);
 
   return (
-    <div>
-      <div className="mb-6 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-        <h2>Gestion des eleves</h2>
-        <div className="flex gap-4 items-center">
-          <Dialog>
-            <DialogTrigger asChild>
-              <Button>Ajouter un élève</Button>
-            </DialogTrigger>
-            <DialogContent>
-              <DialogHeader>
-                <DialogTitle>Créer un élève</DialogTitle>
-              </DialogHeader>
-              <DialogDescription asChild>
-                <div className="grid gap-4">
-                  {/* Add your form component here */}
-                </div>
-              </DialogDescription>
-            </DialogContent>
-          </Dialog>
-
+    <div className="container mx-auto p-6 space-y-8">
+      {/* Header with title and refresh */}
+      <div className="flex justify-between items-center">
+        <h1 className="text-3xl font-bold">Gestion des Élèves</h1>
+        <div>
           <Button onClick={() => refetch()}>Actualiser</Button>
         </div>
       </div>
 
-      <div className="flex gap-3 flex-col">
-        <div className="flex justify-center items-center">
-          <Button onClick={() => setEnableFilter(!enableFilter)}>
-            {" "}
-            {enableFilter ? "Masquer les filtres" : "Afficher les filtres"}
-          </Button>
-        </div>
+      {/* Filters Toggle */}
+      <div>
+        <Button onClick={() => setEnableFilter(!enableFilter)}>
+          {enableFilter ? "Masquer les filtres" : "Afficher les filtres"}
+        </Button>
+      </div>
 
-        <div className="flex flex-row gap-4">
-          <div className="flex-1">
-            {enableFilter && (
-              <div>
-                <Input
-                  type="search"
-                  value={search}
-                  onChange={(e) => {
-                    setSearch(e.target.value);
-                    setPage(0); // réinitialise la page à 0 en cas de nouvelle recherche
-                  }}
-                  placeholder="Rechercher..."
-                  className="mb-4"
-                />
-              </div>
-            )}
-
-            <DataTable
-              columns={columns}
-              data={students}
-              isLoading={isLoading}
-              error={error?.message || null}
-              retryFunction={refetch}
-              totalCount={total}
-              enablePagination
-              enableSorting
-              serverSide
-              searchableColumns={["firstname", "lastname"]}
-              onPageChange={handlePageChange}
-            />
+      {/* Filters Section */}
+      {enableFilter && (
+        <div className="shadow rounded-lg p-6 space-y-4">
+          <div className="flex justify-between items-center">
+            <h2 className="text-2xl font-semibold">Filtres</h2>
+            <Button
+              variant="link"
+              size="sm"
+              onClick={handleResetFilters}
+              className="text-destructive"
+            >
+              Réinitialiser
+            </Button>
           </div>
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+            {/* Search */}
+            <div className="flex flex-col space-y-1">
+              <Label>Recherche</Label>
+              <Input
+                type="search"
+                placeholder="Nom, Prénom ou Matricule"
+                value={search}
+                onChange={(e) => {
+                  setSearch(e.target.value);
+                  setPage(0);
+                }}
+              />
+            </div>
 
-          {enableFilter && (
-            <div className="w-72 space-y-4 p-4 bg-card rounded-lg shadow">
-              <div className="flex justify-between items-center">
-                <h3 className="font-medium">Filtres</h3>
-                <Button
-                  variant="ghost"
-                  size="sm"
-                  onClick={handleResetFilters}
-                  className="text-destructive hover:text-destructive/80"
+            {/* Année académique */}
+            <div className="flex flex-col space-y-1">
+              <Label>Année académique</Label>
+              <Select
+                value={selectedYear}
+                onValueChange={(val) => {
+                  setSelectedYear(val);
+                  setPage(0);
+                }}
+              >
+                <SelectTrigger>
+                  <SelectValue placeholder="Sélectionner une année" />
+                </SelectTrigger>
+                <SelectContent>
+                  {academicYears.map((year) => (
+                    <SelectItem key={year} value={year}>
+                      {year}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+
+            {/* Classe */}
+            <div className="flex flex-col space-y-1">
+              <Label>Classe</Label>
+              {fetchClasseError ? (
+                <div className="space-y-2 text-destructive">
+                  <p className="text-sm">Erreur de chargement des classes</p>
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={() => refetchClasses()}
+                  >
+                    Réessayer
+                  </Button>
+                </div>
+              ) : (
+                <Select
+                  value={selectedClass?.toString() || "null"}
+                  onValueChange={(value) => handleClassChange(Number(value))}
+                  disabled={isLoadingClasse}
                 >
-                  Réinitialiser
-                </Button>
-              </div>
-
-              {/* Annee academique */}
-              <div className="space-y-2">
-                <Label className="text-sm font-medium">Annee academique</Label>
-                <Select value={selectedYear} onValueChange={setSelectedYear}>
                   <SelectTrigger>
-                    <SelectValue />
+                    <SelectValue placeholder="Toutes les classes" />
                   </SelectTrigger>
                   <SelectContent>
-                    {academicYears.map((year) => (
-                      <SelectItem key={year} value={year}>
-                        {year}
+                    <SelectItem value="null">Toutes</SelectItem>
+                    {classesResponse?.map((classe) => (
+                      <SelectItem key={classe.id} value={classe.id.toString()}>
+                        {classe.name}
                       </SelectItem>
                     ))}
                   </SelectContent>
                 </Select>
-              </div>
-
-              {/* Selection de classe */}
-              <div className="space-y-2">
-                <Label className="text-sm font-medium">Classe</Label>
-                {fetchClasseError ? (
-                  <div className="space-y-2 text-destructive">
-                    <p className="text-sm">Erreur de chargement des classes</p>
-                    <Button
-                      variant="outline"
-                      size="sm"
-                      onClick={() => refetchClasses()}
-                    >
-                      Réessayer
-                    </Button>
-                  </div>
-                ) : (
-                  <Select
-                    value={selectedClass?.toString() || ""}
-                    onValueChange={(value) => handleClassChange(Number(value))}
-                    disabled={isLoadingClasse}
-                  >
-                    <SelectTrigger>
-                      <SelectValue placeholder="Sélectionnez une classe" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      {isLoadingClasse ? (
-                        <SelectItem value="loading" disabled>
-                          Chargement...
-                        </SelectItem>
-                      ) : (
-                        classesResponse?.map((classe) => (
-                          <SelectItem
-                            key={classe.id}
-                            value={classe.id.toString()}
-                          >
-                            {classe.name}
-                          </SelectItem>
-                        ))
-                      )}
-                    </SelectContent>
-                  </Select>
-                )}
-              </div>
-
-              {/* Sélection de salle */}
-              <div className="space-y-2">
-                <label className="text-sm font-medium">Salle de classe</label>
-                {fetchClassroomsError ? (
-                  <div className="space-y-2 text-destructive">
-                    <p className="text-sm">Erreur de chargement des salles</p>
-                    <Button
-                      variant="outline"
-                      size="sm"
-                      onClick={() => refetchClassrooms()}
-                    >
-                      Réessayer
-                    </Button>
-                  </div>
-                ) : (
-                  <Select
-                    value={selectedClassroom?.toString() || ""}
-                    onValueChange={(value) =>
-                      handleClassroomChange(Number(value))
-                    }
-                    disabled={!selectedClass || isLoadingClassrooms}
-                  >
-                    <SelectTrigger>
-                      <SelectValue
-                        placeholder={
-                          !selectedClass
-                            ? "Choisissez d'abord une classe"
-                            : "Sélectionnez une salle"
-                        }
-                      />
-                    </SelectTrigger>
-                    <SelectContent>
-                      {isLoadingClassrooms ? (
-                        <SelectItem value="loading" disabled>
-                          Chargement...
-                        </SelectItem>
-                      ) : classroomsResponse?.length ? (
-                        classroomsResponse.map((classroom) => (
-                          <SelectItem
-                            key={classroom.id}
-                            value={classroom.id.toString()}
-                          >
-                            {classroom.name}
-                          </SelectItem>
-                        ))
-                      ) : (
-                        <SelectItem value="none" disabled>
-                          Aucune salle disponible
-                        </SelectItem>
-                      )}
-                    </SelectContent>
-                  </Select>
-                )}
-              </div>
+              )}
             </div>
-          )}
+
+            {/* Salle de classe */}
+            <div className="flex flex-col space-y-1">
+              <Label>Salle de classe</Label>
+              {fetchClassroomsError ? (
+                <div className="space-y-2 text-destructive">
+                  <p className="text-sm">Erreur de chargement des salles</p>
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={() => refetchClassrooms()}
+                  >
+                    Réessayer
+                  </Button>
+                </div>
+              ) : (
+                <Select
+                  value={selectedClassroom?.toString() || "null"}
+                  onValueChange={(value) =>
+                    handleClassroomChange(Number(value))
+                  }
+                  disabled={!selectedClass || isLoadingClassrooms}
+                >
+                  <SelectTrigger>
+                    <SelectValue
+                      placeholder={
+                        !selectedClass
+                          ? "Choisissez d'abord une classe"
+                          : "Sélectionnez une salle"
+                      }
+                    />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="null">Toutes</SelectItem>
+                    {isLoadingClassrooms ? (
+                      <SelectItem value="loading" disabled>
+                        Chargement...
+                      </SelectItem>
+                    ) : classroomsResponse?.length ? (
+                      classroomsResponse.map((classroom) => (
+                        <SelectItem
+                          key={classroom.id}
+                          value={classroom.id.toString()}
+                        >
+                          {classroom.name}
+                        </SelectItem>
+                      ))
+                    ) : (
+                      <SelectItem value="none" disabled>
+                        Aucune salle disponible
+                      </SelectItem>
+                    )}
+                  </SelectContent>
+                </Select>
+              )}
+            </div>
+          </div>
         </div>
+      )}
+
+      {/* DataTable Section */}
+      <div className="shadow rounded-lg p-6">
+        <h2 className="text-2xl font-semibold mb-4">Liste des Élèves</h2>
+        <DataTable
+          columns={columns}
+          data={students}
+          isLoading={isLoading}
+          error={error?.message || null}
+          retryFunction={refetch}
+          totalCount={total}
+          enablePagination
+          enableSorting
+          serverSide
+          searchableColumns={["firstname", "lastname"]}
+          onPageChange={handlePageChange}
+        />
       </div>
+
+      {/* Add Student Dialog */}
+      <Dialog>
+        <DialogTrigger asChild>
+          <Button>Ajouter un élève</Button>
+        </DialogTrigger>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Créer un élève</DialogTitle>
+          </DialogHeader>
+          <DialogDescription asChild>
+            <div className="grid gap-4">{/* Form component placeholder */}</div>
+          </DialogDescription>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }
