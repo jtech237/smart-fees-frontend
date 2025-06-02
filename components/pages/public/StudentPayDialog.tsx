@@ -27,13 +27,13 @@ type MethodOption = {
 
 const METHODS: MethodOption[] = [
   {
-    id: 1,
+    id: 2,
     label: "MTN Mobile Money",
     logo: "/assets/images/momo-logo.webp",
     ussdPrefix: "*126*",
   },
   {
-    id: 2,
+    id: 1,
     label: "Orange Money",
     logo: "/assets/images/om-logo.png",
     ussdPrefix: "*150*",
@@ -113,7 +113,7 @@ export function StudentPayDialog({ fee }: { fee: RequiredFees }) {
             error: "Délai d'attente dépassé.",
           });
         }
-      }, 60000);
+      }, 120000);
     }
 
     return () => {

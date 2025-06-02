@@ -9,6 +9,8 @@ import {
 import ClassroomForm from './ClassroomForm';
 
 export default function ClassroomActions({classe}: {classe: {id: number; name: string, classe: number}}){
+
+
   return (
     <div className='flex space-x-2 items-center justify-center'>
       <Dialog>

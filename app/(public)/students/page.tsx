@@ -58,8 +58,18 @@ export default function StudentDashboard() {
   }
 
   if (!student) {
-    return null;
+    return (
+      <Alert variant="destructive">
+        <Info className="h-4 w-4 mr-2"/>
+        <AlertTitle>Erreur de chargement</AlertTitle>
+        <AlertDescription>
+          {error ? error.message : "Erreur de chargement des données"}
+        </AlertDescription>
+      </Alert>
+    );
   }
+
+  console.log(student)
 
   if (error) {
     return (

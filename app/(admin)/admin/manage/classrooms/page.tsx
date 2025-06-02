@@ -30,7 +30,7 @@ const columns: ColumnDef<Classroom>[] = [
 ]
 
 export default function ClassroomsPage(){
-  const {data, isLoading, error} = useClassrooms()
+  const {data, isLoading, error, refetch} = useClassrooms()
   console.log(data)
   return <div>
     <div className="mb-6 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
@@ -48,6 +48,7 @@ export default function ClassroomsPage(){
           </DialogDescription>
         </DialogContent>
       </Dialog>
+      <Button onClick={() => refetch()} variant={"link"}>Actualiser</Button>
     </div>
 
     <DataTable
@@ -59,6 +60,7 @@ export default function ClassroomsPage(){
       enableFilter
       enablePagination
       enableSorting
+      retryFunction={refetch}
     />
   </div>
 }

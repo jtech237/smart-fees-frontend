@@ -108,7 +108,7 @@ export default function ReceiptClient() {
           </div>
           <div className="p-2 grid grid-cols-3 gap-y-4">
             <span>Noms et prénoms</span>
-            <span className="col-span-2">{`${payment.student.firstname} ${payment.student.lastname}`}</span>
+            <span className="col-span-2">{`${payment.student.lastname} ${payment.student.firstname}`}</span>
             <span>Matricule</span>
             <span className="col-span-2">{`${payment.student.matricule}`}</span>
             <span>Date de naissance</span>

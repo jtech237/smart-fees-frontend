@@ -1,75 +1,85 @@
-"use client"
+"use client";
 
-import { SubmitHandler, useForm } from "react-hook-form"
-import { z } from "zod"
-import { Form, FormControl, FormField, FormItem, FormLabel } from "@/components/ui/form"
-import { Input } from "@/components/ui/input"
-import { zodResolver } from "@hookform/resolvers/zod"
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
-import { Button } from "@/components/ui/button"
-import { toast } from "sonner"
-import { useCreateClassroom, useUpdateClassroom } from "@/lib/api/classrooms"
-import { useClasses } from "@/lib/api/classes"
+import { SubmitHandler, useForm } from "react-hook-form";
+import { z } from "zod";
+import {
+  Form,
+  FormControl,
+  FormField,
+  FormItem,
+  FormLabel,
+} from "@/components/ui/form";
+import { Input } from "@/components/ui/input";
+import { zodResolver } from "@hookform/resolvers/zod";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import { Button } from "@/components/ui/button";
+import { toast } from "sonner";
+import { useCreateClassroom, useUpdateClassroom } from "@/lib/api/classrooms";
+import { useClasses } from "@/lib/api/classes";
 
 const classroomSchema = z.object({
   name: z.string().min(3, "Le nom est trop court."),
   classe: z.number().int(),
-})
+});
 
-type ClassroomDataType = z.infer<typeof classroomSchema>
+type ClassroomDataType = z.infer<typeof classroomSchema>;
 type Props = {
-  initialData?: {id: number; name: string; classe: number}
-  onSuccess?: () => void
-}
+  initialData?: { id: number; name: string; classe: number };
+  onSuccess?: () => void;
+};
 
-export default function ClassroomForm({
-  initialData, onSuccess
-}: Props){
+export default function ClassroomForm({ initialData, onSuccess }: Props) {
   const form = useForm({
     resolver: zodResolver(classroomSchema),
-    defaultValues: initialData ? initialData : {
-      name: "",
-    }
-  })
+    defaultValues: initialData
+      ? initialData
+      : {
+          name: "",
+        },
+  });
 
-  const createClassroom = useCreateClassroom()
-  const updateClassroom = useUpdateClassroom()
-  const {data: classes} = useClasses()
+  const createClassroom = useCreateClassroom();
+  const updateClassroom = useUpdateClassroom();
+  const { data: classes } = useClasses({ orphan: true });
 
-  const isPending = createClassroom.isPending || updateClassroom.isPending
-
+  const isPending = createClassroom.isPending || updateClassroom.isPending;
 
   const onSubmit: SubmitHandler<ClassroomDataType> = async (data) => {
-    if(initialData){
+    if (initialData) {
       updateClassroom.mutate(
-        {id: initialData.id, data},
+        { id: initialData.id, data },
         {
           onSuccess: () => {
-            toast.success("Salle mise a jour.")
-            form.reset()
-            onSuccess?.()
+            toast.success("Salle mise a jour.");
+            form.reset();
+            onSuccess?.();
           },
           onError: (err) => {
-            console.error(err)
-            toast.error("Erreur lors de la modification.")
+            console.error(err);
+            toast.error("Erreur lors de la modification.");
           },
-        },
-      )
-    }else{
+        }
+      );
+    } else {
       createClassroom.mutate(data, {
         onSuccess: () => {
-          toast.success("Salle cree")
-          form.reset()
-          onSuccess?.()
+          toast.success("Salle cree");
+          form.reset();
+          onSuccess?.();
         },
         onError: (err) => {
-          console.error(err)
-          toast.error("Erreur lors de la creation.")
+          console.error(err);
+          toast.error("Erreur lors de la creation.");
         },
-      })
+      });
     }
-
-  }
+  };
 
   return (
     <Form {...form}>
@@ -77,7 +87,7 @@ export default function ClassroomForm({
         <FormField
           control={form.control}
           name="name"
-          render={({field}) => (
+          render={({ field }) => (
             <FormItem>
               <FormLabel>Nom de la salle</FormLabel>
               <FormControl>
@@ -95,7 +105,7 @@ export default function ClassroomForm({
         <FormField
           control={form.control}
           name="classe"
-          render={({field}) => (
+          render={({ field }) => (
             <FormItem>
               <FormLabel>Classe</FormLabel>
               <Select
@@ -108,7 +118,7 @@ export default function ClassroomForm({
               >
                 <FormControl>
                   <SelectTrigger>
-                    <SelectValue placeholder="Selectionner une classe"/>
+                    <SelectValue placeholder="Selectionner une classe" />
                   </SelectTrigger>
                 </FormControl>
                 <SelectContent>
@@ -125,14 +135,16 @@ export default function ClassroomForm({
         <div className="mt-4">
           <Button
             type="submit"
-            disabled={
-              !form.formState.isDirty || !form.formState.isValid || form.formState.isSubmitting
-            }
+            disabled={!form.formState.isValid || form.formState.isSubmitting}
           >
-            {isPending ? "Enregistrement..." : initialData ? "Modifier" : "Créer"}
+            {isPending
+              ? "Enregistrement..."
+              : initialData
+              ? "Modifier"
+              : "Créer"}
           </Button>
         </div>
       </form>
     </Form>
-  )
+  );
 }

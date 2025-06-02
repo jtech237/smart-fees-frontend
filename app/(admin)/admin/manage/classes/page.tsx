@@ -33,7 +33,7 @@ const columns: ColumnDef<Classe>[] = [
 ];
 
 export default function ClasseListPage() {
-  const {data, isLoading, error} = useClasses()
+  const {data, isLoading, error, refetch} = useClasses()
   const [isDialogOpen, setIsDialogOpen] = useState(false);
 
 
@@ -52,6 +52,8 @@ export default function ClasseListPage() {
             <ClasseForm onSuccess={() => setIsDialogOpen(false)} />
           </DialogContent>
         </Dialog>
+
+        <Button variant={"link"} onClick={() => refetch()}>Actualiser</Button>
       </div>
 
       {/* Table */}
@@ -64,6 +66,7 @@ export default function ClasseListPage() {
         enableFilter
         enablePagination
         searchableColumns={["id", "name"]}
+        retryFunction={refetch}
       />
     </div>
   );

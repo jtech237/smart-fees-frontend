@@ -35,6 +35,12 @@ const columns: ColumnDef<Fee>[] = [
     cell: ({ row }) => row.index + 1,
   },
   {
+    id: "name",
+    // accessorKey: "name",
+    header: "Description",
+    cell: ({ row }) => row.original.feesType.name
+  },
+  {
     accessorKey: "amount",
     header: "Montant",
     cell: ({ row }) =>
@@ -60,7 +66,13 @@ const columns: ColumnDef<Fee>[] = [
           {new Date(row.original.dueDate).toLocaleDateString()}
         </p>
       ) : (
-        <p className="text-center">-</p>
+        row.original.feesType.defaultDueDate ? (
+          <p className="text-center">
+            {new Date(row.original.feesType.defaultDueDate).toLocaleDateString()}
+          </p>
+        ) : (
+          <p className="text-center">{"Aucune date d'échéance"}</p>
+        )
       );
     },
   },
@@ -106,7 +118,7 @@ function ManageFeesPage() {
     isLoading: isLoadingClasse,
     error: fetchClasseError,
     refetch: refetchClasses,
-  } = useClasses();
+  } = useClasses({orphan: true});
 
   const feesData = feesResponse?.items || [];
   const totalCount = feesResponse?.count || 0;
@@ -117,6 +129,11 @@ function ManageFeesPage() {
   }, []);
 
   const handleClassChange = useCallback((value: string) => {
+    if(value === "null"){
+      setPageIndex(0);
+      setSelectedClass(undefined);
+      return;
+    }
     setSelectedClass(parseInt(value));
     setPageIndex(0); // réinitialise la pagination lors du changement de classe
   }, []);
@@ -245,7 +262,7 @@ function ManageFeesPage() {
                   </p>
                 ) : (
                   <Select
-                    defaultValue={selectedClass ? `${selectedClass}` : ""}
+                    defaultValue={selectedClass ? `${selectedClass}` : "null"}
                     onValueChange={handleClassChange}
                   >
                     <SelectTrigger>

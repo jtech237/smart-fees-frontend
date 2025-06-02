@@ -56,6 +56,7 @@ export default function ClasseForm({ initialData, onSuccess }: Props) {
     ) || [];
 
   const isPending = createClasse.isPending || updateClasse.isPending;
+  
 
   const onSubmit: SubmitHandler<z.infer<typeof classeSchema>> = async (
     data

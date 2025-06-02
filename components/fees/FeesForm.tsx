@@ -89,7 +89,7 @@ export default function FeesForm({ initialData, onSuccess }: Props) {
     }
   }, [selectedFeeType, form]);
 
-  const { data: classes } = useClasses();
+  const { data: classes } = useClasses({orphan: true});
   const { data: feeTypes } = useFeeTypes();
   const isPending = initialData ? updateIsPending : createIsPending;
 
