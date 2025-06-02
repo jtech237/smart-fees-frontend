@@ -24,7 +24,15 @@ import {
 import DataTable from "@/components/data-table";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import { Sheet } from "lucide-react";
+import * as XSLX from "xlsx";
 
 export default function DashboardPaymentsPage() {
   const [search, setSearch] = useState("");
@@ -95,9 +103,9 @@ export default function DashboardPaymentsPage() {
   // 3.1. Graphique « Répartition des paiements par statut (Pie) »
   //    Nous allons transformer statsData.by_status en un tableau adapté à Recharts.
   const pieData = useMemo(() => {
-    console.log(statsData)
+    console.log(statsData);
     if (!statsData || !statsData.byStatus) return [];
-    console.log(statsData)
+    console.log(statsData);
     return Object.entries(statsData.byStatus).map(([statusKey, stat]) => {
       let label = "";
       if (statusKey === "PEN") label = "En attente";
@@ -146,11 +154,11 @@ export default function DashboardPaymentsPage() {
         cell: ({ row }) => row.original.classe?.name || "—",
       },
       {
-        accessorKey: "academic_year",
+        accessorKey: "academicYear",
         header: "Année Académique",
       },
       {
-        accessorKey: "fees_type",
+        accessorKey: "feesType",
         header: "Type de frais",
       },
       {
@@ -206,7 +214,7 @@ export default function DashboardPaymentsPage() {
     []
   );
 
-  // -------------------- 5. Handlers (Pagination, Reset filtres) --------------------
+  // -------------------- 5. Handlers (Pagination, Reset filtres, export excel) --------------------
   const handlePageChange = useCallback(
     (newPage: number, newPageSize: number) => {
       setPageIndex(newPage);
@@ -225,6 +233,28 @@ export default function DashboardPaymentsPage() {
     setDateTo("");
     setPageIndex(0);
   }, []);
+
+  const handleExportToExcel = () => {
+    const rowsForExcel = payments.map((p) => ({
+      "ID Paiement": p.id,
+      "Élève": `${p.student.firstname} ${p.student.lastname}`.trim(),
+      "Matricule": p.student.matricule,
+      "Classe": p.classe?.name || "—",
+      "Année Académique": p.academicYear || "—",
+      "Type de frais": p.feesType,
+      "Montant (FCFA)": p.amount,
+      "Méthode": p.method,
+      "N° Transaction": p.transactionId || "—",
+      "Statut": p.status === "PEN" ? "En attente" : p.status === "COM" ? "Complété" : "Échoué",
+      "Date Création": new Date(p.createdAt).toLocaleDateString("fr-FR"),
+    }))
+
+    const worksheet = XSLX.utils.json_to_sheet(rowsForExcel);
+
+    const workbook = XSLX.utils.book_new();
+    XSLX.utils.book_append_sheet(workbook, worksheet, "Paiements");
+    XSLX.writeFile(workbook, `paiements_${new Date().toISOString()}.xlsx`);
+  }
 
   return (
     <div className="container mx-auto p-6 space-y-8">
@@ -260,7 +290,8 @@ export default function DashboardPaymentsPage() {
                     : statKey === "pen"
                     ? "Paiements en attente"
                     : "Paiements échoués";
-                const stat = statsData?.byStatus?.[statKey as "pen" | "com" | "fai"];
+                const stat =
+                  statsData?.byStatus?.[statKey as "pen" | "com" | "fai"];
                 const colorBar =
                   statKey === "com"
                     ? "bg-green-500"
@@ -302,7 +333,7 @@ export default function DashboardPaymentsPage() {
                   nameKey={"name"}
                   cx={"50%"}
                   cy={"50%"}
-                //   innerRadius={50}
+                  //   innerRadius={50}
                   outerRadius={80}
                   labelLine={false}
                   label={({ name, percent }) =>
@@ -337,7 +368,7 @@ export default function DashboardPaymentsPage() {
                 <XAxis dataKey="period" tickFormatter={(d) => d.slice(5)} />
                 <YAxis />
                 <Tooltip formatter={(value: number) => `${value} FCFA`} />
-                <Legend/>
+                <Legend />
                 <Bar
                   dataKey="totalAmount"
                   fill="#4F46E5"
@@ -383,10 +414,10 @@ export default function DashboardPaymentsPage() {
             <Select
               value={selectedClass?.toString() || ""}
               onValueChange={(val) => {
-                if(val === "null") {
-                    setSelectedClass(undefined)
-                    setPageIndex(0);
-                    return
+                if (val === "null") {
+                  setSelectedClass(undefined);
+                  setPageIndex(0);
+                  return;
                 }
                 setSelectedClass(val ? Number(val) : undefined);
                 setPageIndex(0);
@@ -437,9 +468,9 @@ export default function DashboardPaymentsPage() {
               value={statusFilter}
               onValueChange={(val) => {
                 setPageIndex(0);
-                if(val === "null"){
-                    setStatusFilter("")
-                    return
+                if (val === "null") {
+                  setStatusFilter("");
+                  return;
                 }
                 setStatusFilter(val);
               }}
@@ -500,9 +531,12 @@ export default function DashboardPaymentsPage() {
 
       {/*** 6.4. Section « Tableau détaillé » ***/}
       <div className="shadow rounded-lg p-6">
+        <div className="flex justify-between items-center">
         <h2 className="text-2xl font-semibold mb-4">
           Liste des paiements des étudiants
         </h2>
+        <Button variant={"outline"} onClick={() => handleExportToExcel()} className="bg-white text-green-400 hover:bg-green-400 hover:text-white"><Sheet/> Export to Excel</Button>
+        </div>
         <DataTable
           columns={columns}
           data={payments}
